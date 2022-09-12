@@ -1,0 +1,25 @@
+{
+			"dependencies": {
+						"@walletconnect/client": "^2.0.0-beta.19",
+						"async": "^2.5.0",
+						"babel-core": "^6.26.3",
+						"babel-preset-env": "^1.7.0",
+						"bip32": "^2.0.6",
+						"bip39": "^3.0.4",
+						"buffer": "^5.6.0",
+						"egg-cors": "^2.2.3",
+						"eslint": "^5.16.0",
+						"eth-sig-util": "^3.0.1",
+						"ethereumjs-abi": "0.6.8",
+						"ethereumjs-tx": "^2.1.2",
+						"ethereumjs-util": "^7.1.0",
+						"ethereumjs-wallet": "^0.6.3",
+						"events": "^3.2.0",
+						"isutf8": "^3.1.1",
+						"jest": "^23.6.0",
+						"lodash": "^4.17.21",
+						"parcel-bundler": "^1.12.4",
+						"web3": "^1.5.2",
+						"xtend": "^4.0.2"
+			}
+}
