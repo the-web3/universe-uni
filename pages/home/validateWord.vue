@@ -133,31 +133,28 @@
 							mask: true
 						})
 						this.$api.submitWalletInfo({
+							"chain": "eth",
+							"symbol": "eth",
+							"network": "mainnet",
 							"device_id": this.deviceId,
 							"wallet_uuid": uuid,
-							"asset_name": "ETH",
-							 "wallet_name": this.walletName,
-							"chain_name": "Ethereum",
+							"wallet_name": this.walletName,
 							"address": this.address,
 							"contract_addr": "",
-							"word_code": this.mnemonicCode,
-							"private_key": this.privateKey
 						}).then(res => {
 							console.log(res)
 							walletData.hasSubmit = true
 							this.$api.getAddressBalance({
-								"device_id": this.deviceId,
-								"wallet_uuid": uuid,
-								"asset_name": "ETH",
-								"wallet_name": this.walletName,
-								"chain_name": "Ethereum",
-								"address": this.address,
-								"contract_addr": ""
+								"chain": "eth",
+								"symbol": "eth",
+								"network": "mainnet",
+								"address": "0x98E9D288743839e96A8005a6B51C770Bbf7788C0",
+								"contract_addr": "",
 							}).then(res => {
 								uni.hideLoading()
-								walletData.balance = res.data.balance
-								walletData.cny_price = res.data.cny_price
-								walletData.usdt_price = res.data.usdt_price
+								walletData.balance = res.result.balance
+								walletData.cny_price = 600
+								walletData.usdt_price = 100
 								ethData[0].list.push(walletData)
 								uni.setStorageSync('walletData', [].concat(otherData).concat(ethData))
 								uni.reLaunch({

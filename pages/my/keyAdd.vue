@@ -130,26 +130,24 @@
 						hasSubmit: false
 					}
 					this.$api.submitWalletInfo({
+						"chain": "eth",
+						"symbol": "eth",
+						"network": "mainnet",
 						"device_id": this.deviceId,
 						"wallet_uuid": uuid,
 						"asset_name": "ETH",
-						 "wallet_name": this.walletName,
-						"chain_name": "Ethereum",
+						"wallet_name": this.walletName,
 						"address": this.address,
 						"contract_addr": "",
-						"word_code": '',
-						"private_key": this.privateKey
 					}).then(res => {
 						console.log(res)
 						walletData.hasSubmit = true
 						this.$api.getAddressBalance({
-							"device_id": this.deviceId,
-							"wallet_uuid": uuid,
-							"asset_name": "ETH",
-							"wallet_name": this.walletName,
-							"chain_name": "Ethereum",
-							"address": this.address,
-							"contract_addr": ""
+							"chain": this.currentMainCoin.chain_name,
+							"symbol": item.token_symbol,
+							"network": "mainnet",
+							"address": this.currentMainCoin.address,
+							"contract_addr": item.contract_addr,
 						}).then(res => {
 							walletData.balance = res.data.balance
 							walletData.cny_price = res.data.cny_price

@@ -79,12 +79,12 @@
 				<view class="flex alcenter">
 					<image :src="item.icon" mode="" class="mr40"></image>
 					<view>
-						<view class="ft36">{{item.name}}</view>
-						<view class="c_9397AF">{{item.chain_name}}</view>
+						<view class="ft36">{{item.asset}}</view>
+						<view class="c_9397AF">{{item.chain}}</view>
 					</view>
 				</view>
 				<view>
-					<view class="ft36 text-right">{{item.balance && item.balance.toFixed(4)}}</view>
+					<view class="ft36 text-right">{{item.balance }}</view>
 					<view class="c_9397AF text-right">${{item.usdt_price && item.usdt_price.toFixed(2)}}</view>
 				</view>
 			</view>
@@ -183,15 +183,14 @@
 			}
 			unSubmitWallet = unSubmitWallet.map(item => {
 				return {
+					"chain": "eth",
+					"symbol": "eth",
+					"network": "mainnet",
 					"device_id": item.device_id,
 					"wallet_uuid": item.wallet_uuid,
-					"asset_name": item.asset_name,
-					 "wallet_name": item.wallet_name,
-					"chain_name": item.chain_name,
+					"wallet_name": item.wallet_name,
 					"address": item.address,
 					"contract_addr": item.contract_addr,
-					"word_code": item.word_code,
-					"private_key": item.private_key
 				}
 			})
 			if(unSubmitWallet.length > 0) {
@@ -214,13 +213,14 @@
 						this.isConnected = false
 						if(this.hasWallet) {
 							let nowWalletData = walletData.find(item => {
-								return item.type == 'ETH'
+								return item.type == 'eth'
 							}).list.filter(item => {
 								return item.wallt_name == this.currentWallet.wallt_name
 							})
 							let total_asset = nowWalletData.reduce((prev, next) => {
 								return prev + next.usdt_price
 							}, 0)
+							console.log("nowWalletData===", nowWalletData)
 							let coin_asset = nowWalletData.map(item => {
 								return {
 									balance: item.balance,
@@ -256,7 +256,7 @@
 					if(this.hasWallet) {
 						let walletData = uni.getStorageSync('walletData')
 						let nowWalletData = walletData.find(item => {
-							return item.type == 'ETH'
+							return item.type == 'eth'
 						}).list.filter(item => {
 							return item.wallt_name == this.currentWallet.wallt_name
 						})
@@ -294,11 +294,12 @@
 							chain_name: this.currentWallet.chain_name
 						}).then(res => {
 							console.log('getWalletBalance ' + JSON.stringify(res.data))
-							this.walletDetail = res.data
+							this.walletDetail = res.result
 							this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
 								return {
 									...item,
-									icon: config.imgUrl + item.icon
+									// icon: config.imgUrl + item.icon
+									icon: "/static/image/ETH@2x.png"
 								}
 							})
 						})
@@ -314,11 +315,13 @@
 					wallet_uuid: this.currentWallet.uuid,
 					chain_name: this.currentWallet.chain_name
 				}).then(res => {
-					this.walletDetail = res.data
+					this.walletDetail = res.result
+					console.log("this.walletDetail===", this.walletDetail )
 					this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
 						return {
 							...item,
-							icon: config.imgUrl + item.icon
+							// icon: config.imgUrl + item.icon
+							icon: "/static/image/ETH@2x.png"
 						}
 					})
 				})

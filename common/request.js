@@ -26,17 +26,13 @@ function request(params, method, header) {
 			}, header),
 			dataType: 'json',
 			success(res) {
-				// 成功回调
-				// console.log(res)
+				console.log("res==", res)
 				if (res.statusCode == 200) {
-					if(res.data.code == 2000 && res.data.status) {
+					if(res.data.code == 200 && res.data.ok) {
 						resolve(res.data)
-					}else if(res.data.code == 3000 || res.data.code == 3001){
-						reject(res.data)
-					}else if(res.data.code == 40031 ||res.data.code == 40032){
+					}else if(res.data.code == 4000 || !res.data.ok ){
 						reject(res.data)
 					}else{
-						
 						reject(res.data)
 					}
 				} else {

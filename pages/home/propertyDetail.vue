@@ -100,13 +100,11 @@
 		methods: {
 			loadBalance() {
 				this.$api.getAddressBalance({
-					device_id: this.walletData.device_id,
-					wallet_uuid: this.walletData.wallet_uuid,
-					wallet_name: this.walletData.wallet_name,
-					asset_name: this.walletData.name,
-					chain_name: this.walletData.chain_name,
-					address: this.walletData.address,
-					contract_addr: this.walletData.contract_addr
+					"chain": this.currentMainCoin.chain_name,
+					"symbol": item.token_symbol,
+					"network": "mainnet",
+					"address": this.currentMainCoin.address,
+					"contract_addr": item.contract_addr,
 				}).then(res => {
 					this.balanceData = res.data
 					

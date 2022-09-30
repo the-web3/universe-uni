@@ -198,24 +198,22 @@
 					mask: true
 				})
 				this.$api.submitWalletInfo({
+					"chain": "eth",
+					"symbol": "eth",
+					"network": "mainnet",
 					"device_id": this.deviceId,
-					"wallet_uuid": this.currentMainCoin.uuid,
-					"asset_name": item.token_symbol,
-					"wallet_name": this.currentMainCoin.wallt_name,
-					"chain_name": this.currentMainCoin.chain_name,
-					"address": this.currentMainCoin.address,
-					"contract_addr": item.contract_addr,
-					"word_code": this.currentMainCoin.mnemonic_code,
-					"private_key": this.currentMainCoin.private_key
+					"wallet_uuid": uuid,
+					"asset_name": "ETH",
+					"wallet_name": this.walletName,
+					"address": this.address,
+					"contract_addr": "",
 				}).then(res => {
 					console.log('submit ' + JSON.stringify(res))
 					walletData.hasSubmit = true
 					this.$api.getAddressBalance({
-						"device_id": this.deviceId,
-						"wallet_uuid": this.currentMainCoin.uuid,
-						"asset_name": item.token_symbol,
-						"wallet_name": this.currentMainCoin.wallt_name,
-						"chain_name": this.currentMainCoin.chain_name,
+						"chain": this.currentMainCoin.chain_name,
+						"symbol": item.token_symbol,
+						"network": "mainnet",
 						"address": this.currentMainCoin.address,
 						"contract_addr": item.contract_addr,
 					}).then(res => {
