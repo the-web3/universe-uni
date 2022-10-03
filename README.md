@@ -15,7 +15,7 @@ parent:
     <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/savour-labs/universe-uni.svg" />
   </a>
   <a href="https://www.dcloud.io/hbuilderx.html">
-    <img alt="GoDoc" src="https://www.dcloud.io/hbuilderx.html?status.svg" />
+    <img alt="HbuilderX" src="https://download1.dcloud.net.cn/uploads/images/hbuilderx/icon/hbuilderx_icon@2x.png" />
   </a>
 </div>
 
