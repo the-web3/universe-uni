@@ -14,8 +14,8 @@ parent:
   <a href="https://github.com/savour-labs/universe-uni/blob/main/LICENSE">
     <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/savour-labs/universe-uni.svg" />
   </a>
-  <a href="https://pkg.go.dev/github.com/savour-labs/universe-uni">
-    <img alt="GoDoc" src="https://godoc.org/github.com/savour-labs/universe-uni?status.svg" />
+  <a href="https://www.dcloud.io/hbuilderx.html">
+    <img alt="GoDoc" src="https://www.dcloud.io/hbuilderx.html?status.svg" />
   </a>
 </div>
 
