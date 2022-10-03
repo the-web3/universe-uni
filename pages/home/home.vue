@@ -185,7 +185,7 @@
 					"symbol": item.symbol,
 					"network": "mainnet",
 					"device_id": item.device_id,
-					"wallet_uuid": item.wallet_uuid,
+					"wallet_uuid": item.uuid,
 					"wallet_name": item.wallet_name,
 					"address": item.address,
 					"contract_addr": item.contract_addr,

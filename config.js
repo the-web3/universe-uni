@@ -1,10 +1,10 @@
 export default {
 	// API地址
 	// #ifdef APP-PLUS
-		base_url: 'http://127.0.0.1:8000/',
+		base_url: 'http://193.203.215.185:8080/',
 	// #endif
 	// #ifdef H5
 		base_url: '/api/',
 	// #endif
-	imgUrl: 'http://127.0.0.1:8000/'
+	imgUrl: 'http://193.203.215.185:8080/media/'
 }

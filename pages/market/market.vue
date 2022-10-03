@@ -23,10 +23,10 @@
 		<view class="list">
 			<view class="list-item h80 mb40 flex-between alcenter" v-for="item in gds_lst" :key="item.id">
 				<view class="data-item flex-one flex alcenter">
-					<image :src="`${config.base_url + item.icon}`" mode="" class="mr40"></image>
+					<image src="http://193.203.215.185:8080/media/wallet/2022/10/03/BTC2x.png" mode="" class="mr40"></image>
 					<view>
-						<view class="ft36">{{ item.name }}</view>
-						<view class="c_9397AF ft24">{{ item.chain_name }}</view>
+						<view class="ft36">{{ item.symbol }}</view>
+						<view class="c_9397AF ft24">{{ item.chain }}</view>
 					</view>
 				</view>
 				<view class="data-item price flex-one flex-column flex alcenter">
@@ -34,7 +34,7 @@
 					<view class="c_9397AF ft24">¥{{ item.cny_price }}</view>
 				</view>
 				<view class="data-item flex-one flex-center rate">
-					<view class="rate flex-center c-white ft24 alcenter" :class="{'up': +item.rate >= 0 }">{{ `${(+item.rate >= 0) ? '+' : ''}${ (+item.rate) }` }}%</view>
+					<view class="rate flex-center c-white ft24 alcenter" :class="{'up': +item.rate >= 0 }">{{ `${(+item.margin >= 0) ? '+' : ''}${ (+item.margin) }` }}%</view>
 				</view>
 			</view>
 		</view>
@@ -52,6 +52,8 @@
 				trendSort: false,
 				gds_lst: [],
 				pageParams: {
+					device_id: 0,
+					exchange_id: 1,
 					page: 1,
 					pageSize: 1000,
 					total: null
@@ -74,8 +76,8 @@
 				try {
 					const res = await getMarketPrice(this.pageParams)
 					console.log(res)
-					if (+res.code === 2000) {
-						this.gds_lst = res.data.gds_lst || []
+					if (+res.code === 200) {
+						this.gds_lst = res.result || []
 						this.pageParams.total = +res.data.total
 					}
 				} catch (e) {
