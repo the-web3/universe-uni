@@ -5,7 +5,7 @@
 				<view class="ft28">我的资产</view>
 				<image src="../../static/image/eye.png" mode="" class="ml40"></image>
 			</view>
-			<view class="ft64 mt20">{{showNum ? `${assetDetail.total_asset && assetDetail.total_asset.toFixed(2)}` : '***'}}</view>
+			<view class="ft64 mt20">{{showNum ? `${assetDetail.total_asset}` : '***'}}</view>
 		</view>
 		<view class="search-container flex alcenter">
 			<image src="../../static/image/search.png" mode="" class="mr20"></image>
@@ -17,13 +17,13 @@
 				<view class="flex alcenter">
 					<image :src="`${config.base_url + wallet.icon}`" mode="" class="mr40"></image>
 					<view>
-						<view class="ft36">{{wallet.name}}</view>
-						<view class="c_9397AF">{{wallet.chain_name}}</view>
+						<view class="ft36">{{wallet.chain}}</view>
+						<view class="c_9397AF">{{wallet.symbol}}</view>
 					</view>
 				</view>
 				<view>
-					<view class="ft36 text-right">{{wallet.balance && wallet.balance.toFixed(4)}}</view>
-					<view class="c_9397AF text-right">${{wallet.usdt_price && wallet.usdt_price.toFixed(2)}}</view>
+					<view class="ft36 text-right">{{wallet.balance}}</view>
+					<view class="c_9397AF text-right">${{wallet.usdt_price }}</view>
 				</view>
 			</view>
 		</view>
@@ -60,7 +60,7 @@
 							device_id: this.deviceId
 						}).then(res => {
 							uni.hideLoading()
-							this.assetDetail = res.data
+							this.assetDetail = res.result
 						}).catch(() => {
 							uni.hideLoading()
 						})
@@ -78,7 +78,7 @@
 					device_id: this.deviceId
 				}).then(res => {
 					uni.hideLoading()
-					this.assetDetail = res.data
+					this.assetDetail = res.result
 				}).catch(() => {
 					uni.hideLoading()
 				})

@@ -1,10 +1,10 @@
 <template>
 	<view class="direct-transfer-container bg-white plr40 pt20">
 		<view class="coin-detail flex-column justify-center">
-			<view class="ft28 c_9397AF">{{currentWallet.asset_name}} 余额</view>
+			<view class="ft28 c_9397AF">{{ currentWallet.symbol}} 余额</view>
 			<view class="flex alcenter mt10">
-				<view class="ft40">{{currentWallet.balance && currentWallet.balance.toFixed(4)}} {{currentWallet.asset_name}}</view>
-				<view class="ft28">≈$ {{currentWallet.usdt_price && currentWallet.usdt_price.toFixed(2)}}</view>
+				<view class="ft40">{{ currentWallet.balance }} {{currentWallet.symbol}}</view>
+				<view class="ft28">≈$ {{currentWallet.usdt_price }}</view>
 			</view>
 		</view>
 		<view class="form-item mt30">
@@ -24,7 +24,7 @@
 			</view>
 			<view class="flex-between alcenter mt10">
 				<input class="mt10 flex-one" type="number" v-model="amount" placeholder="输入转出金额" placeholder-style="font-size:28rpx;color:#9397AF;" />
-				<view class="all flex-center ml40" @tap="amount = selectCoin.balance.toFixed(4)">全部</view>
+				<view class="all flex-center ml40" @tap="amount = selectCoin.balance">全部</view>
 			</view>
 		</view>
 		<view class="form-item mt30">
@@ -127,9 +127,9 @@
 			}).list
 			this.selectCoin = this.nowWalletData[0]
 			this.currentWallet = uni.getStorageSync('currentWallet')
-			console.log(uni.getStorageSync('currentWallet'))
+			this.currentWallet.balance = Number(this.currentWallet.balance).toFixed(4)
+			this.currentWallet.usdt_price = Number(this.currentWallet.usdt_price).toFixed(4)
 			this.loadSignData()
-			
 			
 			// 获取设备信息
 			// #ifdef APP-PLUS
@@ -147,11 +147,11 @@
 		methods: {
 			loadSignData() {
 				this.$api.get_sign_tx_info({
-					chain_name: this.currentWallet.chain_name,
+					chain: this.currentWallet.chain,
 					address: this.currentWallet.address
 				}).then(res => {
 					console.log(res)
-					this.signData = res.data
+					this.signData = res.result
 					this.gas_list = this.signData.gas_list.map(item => {
 						return {
 							...item,

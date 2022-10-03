@@ -4,16 +4,16 @@
 			<uni-nav-bar statusBar fixed left-icon="back" rightText="详情" :title="walletData.name" backgroundColor="#4C6EF5" color="#ffffff" @clickLeft="goBack" @clickRight="handleRight">
 			</uni-nav-bar>
 			<view class="flex c-white mt40">
-				<view class="ft72">{{balanceData.balance && balanceData.balance.toFixed(4)}}</view>
+				<view class="ft72">{{balanceData.balance }}</view>
 				<view class="ft28" style="line-height: 130rpx;">{{balanceData.name}}</view>
 			</view>
-			<view class="c-white ft28" style="margin-top: -10px;">≈$ {{balanceData.usdt_price && balanceData.usdt_price.toFixed(2)}}</view>
+			<view class="c-white ft28" style="margin-top: -10px;">≈$ {{balanceData.usdt_price }}</view>
 		</view>
 		<view class="chart-container">
 			<view class="flex-between alcenter chart-title plr40">
 				<view class="flex alcenter">
-					<view class="ft40 mr10">{{balanceData.balance && balanceData.balance.toFixed(4)}}</view>
-					<view class="ft28 alself-end">=${{balanceData.usdt_price && balanceData.usdt_price.toFixed(2)}}</view>
+					<view class="ft40 mr10">{{balanceData.balance}}</view>
+					<view class="ft28 alself-end">=${{balanceData.usdt_price}}</view>
 				</view>
 				<view>价格USD</view>
 			</view>
@@ -25,19 +25,19 @@
 			<view class="ft32 mb50">交易记录</view>
 			<view class="list-item flex-between alcenter h80" v-for="(item, index) in recordList" :key="index" @tap="goDetail(item)">
 				<view class="flex alcenter">
-					<image v-if="item.is_error == 1" src="../../static/image/shibai@2x.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.tx_in_out == 'to' && item.txreceipt_status == 1" src="../../static/image/transfer.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.tx_in_out == 'from' && item.txreceipt_status == 1" src="../../static/image/zhuanchu@2x.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.txreceipt_status != 1" src="../../static/image/deng@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status != 2" src="../../static/image/shibai@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status == 2 && item.tx_in_out == 'to' && item.txreceipt_status == 3" src="../../static/image/transfer.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status == 2 && item.tx_in_out == 'from' && item.txreceipt_status == 3" src="../../static/image/zhuanchu@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status == 2 && item.txreceipt_status != 3" src="../../static/image/deng@2x.png" mode="" class="mr40"></image>
 					<view style="width: 300rpx;">
-						<view class="ft36">{{item.is_error == 1 ? '转账失败' : item.tx_in_out == 'from' && item.txreceipt_status == 1 ? 
-						'转出' : item.tx_in_out == 'from' && item.txreceipt_status != 1 ? 
-						'待转出' : item.tx_in_out == 'to' && item.txreceipt_status == 1 ? '收款' : '待收款'}}</view>
+						<view class="ft36">{{item.txreceipt_status == 2 ? '转账失败' : item.tx_in_out == 'from' && item.txreceipt_status == 3 ? 
+						'转出' : item.tx_in_out == 'from' && item.txreceipt_status != 3 ? 
+						'待转出' : item.tx_in_out == 'to' && item.txreceipt_status == 3 ? '收款' : '待收款'}}</view>
 						<view class="c_9397AF line-one">{{item.from}}</view>
 					</view>
 				</view>
 				<view class="flex-one" style="overflow: hidden;">
-					<view class="ft36 line-one" style="text-align: right;">{{(item.value / Math.pow(10, item.unit)).toFixed(4)}}</view>
+					<view class="ft36 line-one" style="text-align: right;">{{item.value}}</view>
 					<view class="c_9397AF" style="text-align: right;">{{item.date_tine}}</view>
 				</view>
 			</view>
@@ -100,18 +100,19 @@
 		methods: {
 			loadBalance() {
 				this.$api.getAddressBalance({
-					"chain": this.currentMainCoin.chain_name,
-					"symbol": item.token_symbol,
+					"chain": this.walletData.chain,
+					"symbol": this.walletData.symbol,
 					"network": "mainnet",
-					"address": this.currentMainCoin.address,
-					"contract_addr": item.contract_addr,
+					"address": this.walletData.address,
+					"contract_addr": "",// item.contract_addr,
 				}).then(res => {
-					this.balanceData = res.data
-					
-					let categories = res.data.data_stat.map(item => {
+					console.log("enter here now")
+					this.balanceData = res.result
+					console.log("res.result==", res.result)
+					let categories = res.result.data_stat.map(item => {
 						return item.time
 					})
-					let data = res.data.data_stat.map(item => {
+					let data = res.result.data_stat.map(item => {
 						return item.amount
 					})
 					//渐变色区域图
@@ -143,8 +144,11 @@
 			},
 			loadRecord() {
 				return new Promise((resolve, reject) => {
+					console.log("aaa=====", this.walletData.chain)
 					this.$api.get_tx_by_address({
-						action: this.walletData.contract_addr ? 'tokentx' : 'txlist', // 主链币 txlist  代币 tokentx
+						network: "mainnet",
+						chain: this.walletData.chain,
+						symbol: this.walletData.symbol,
 						address: this.walletData.address,
 						contract_address: this.walletData.contract_addr,
 						page: this.page.toString(),
@@ -156,9 +160,9 @@
 							this.hasMore = true
 						}
 						if(this.page == 1) {
-							this.recordList = res.data || []
+							this.recordList = res.result || []
 						}else{
-							this.recordList = this.recordList.concat(res.data || [])
+							this.recordList = this.recordList.concat(res.result || [])
 						}
 						resolve(res)
 					}).catch((err) => {

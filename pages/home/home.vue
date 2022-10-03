@@ -52,7 +52,7 @@
 						<image src="../../static/image/arrow-right.png" mode=""></image>
 					</navigator>
 				</view>
-				<view class="money-num ft64 pl58" v-if="showMoney">{{walletDetail.total_asset && walletDetail.total_asset.toFixed(2)}}</view>
+				<view class="money-num ft64 pl58" v-if="showMoney">{{walletDetail.total_asset }}</view>
 				<view class="money-num ft64 pl58" v-else>***</view>
 				<view class="items flex">
 					<navigator hover-class="none" :url="`./transfer?address=${currentWallet.address}&chainName=${currentWallet.chain_name}`" class="item">
@@ -79,14 +79,14 @@
 				<view class="flex alcenter">
 					<image :src="item.icon" mode="" class="mr40"></image>
 					<view>
-						<view class="ft36">{{item.asset}}</view>
+						<view class="ft36">{{item.symbol}}</view>
 						<view class="c_9397AF">{{item.chain}}</view>
 					</view>
 				</view>
 				<view>
 					<view class="ft36 text-right">{{item.balance }}</view>
-					<view class="c_9397AF text-right">${{item.usdt_price && item.usdt_price.toFixed(2)}}</view>
-				</view>
+					<view class="c_9397AF text-right">${{item.usdt_price }}</view>
+				</view> 
 			</view>
 		</view>
 		<uni-popup ref="popup" type="bottom">
@@ -170,9 +170,7 @@
 		onShow() {
 			this.hasWallet = uni.getStorageSync('walletData').length > 0
 			if(!this.hasWallet) return 
-			let walletData = uni.getStorageSync('walletData')
-			console.log(walletData)
-			
+			let walletData = uni.getStorageSync('walletData')			
 			let unSubmitWallet = []
 			for(let item of walletData) {
 				
@@ -183,8 +181,8 @@
 			}
 			unSubmitWallet = unSubmitWallet.map(item => {
 				return {
-					"chain": "eth",
-					"symbol": "eth",
+					"chain": item.chain,
+					"symbol": item.symbol,
 					"network": "mainnet",
 					"device_id": item.device_id,
 					"wallet_uuid": item.wallet_uuid,
@@ -213,22 +211,21 @@
 						this.isConnected = false
 						if(this.hasWallet) {
 							let nowWalletData = walletData.find(item => {
-								return item.type == 'eth'
+								return item.type == 'ETH'
 							}).list.filter(item => {
 								return item.wallt_name == this.currentWallet.wallt_name
 							})
 							let total_asset = nowWalletData.reduce((prev, next) => {
 								return prev + next.usdt_price
 							}, 0)
-							console.log("nowWalletData===", nowWalletData)
 							let coin_asset = nowWalletData.map(item => {
 								return {
 									balance: item.balance,
-									chain_name: item.chain_name,
+									chain: item.chain,
 									cny_price: item.cny_price || 0,
 									icon: item.icon,
 									id: 8,
-									name: item.asset_name,
+									symbol: item.symbol,
 									usdt_price: item.usdt_price,
 								}
 							})
@@ -256,7 +253,7 @@
 					if(this.hasWallet) {
 						let walletData = uni.getStorageSync('walletData')
 						let nowWalletData = walletData.find(item => {
-							return item.type == 'eth'
+							return item.type == 'ETH'
 						}).list.filter(item => {
 							return item.wallt_name == this.currentWallet.wallt_name
 						})
@@ -266,11 +263,11 @@
 						let coin_asset = nowWalletData.map(item => {
 							return {
 								balance: item.balance,
-								chain_name: item.chain_name,
+								chain: item.chain,
 								cny_price: item.cny_price || 0,
 								icon: item.icon,
 								id: 8,
-								name: item.asset_name,
+								symbol: item.symbol,
 								usdt_price: item.usdt_price,
 							}
 						})
@@ -291,15 +288,13 @@
 						this.$api.getWalletBalance({
 							device_id: this.deviceId,
 							wallet_uuid: this.currentWallet.uuid,
-							chain_name: this.currentWallet.chain_name
+							chain: this.currentWallet.chain
 						}).then(res => {
-							console.log('getWalletBalance ' + JSON.stringify(res.data))
 							this.walletDetail = res.result
 							this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
 								return {
 									...item,
-									// icon: config.imgUrl + item.icon
-									icon: "/static/image/ETH@2x.png"
+									icon: config.imgUrl + item.icon
 								}
 							})
 						})
@@ -313,15 +308,13 @@
 				this.$api.getWalletBalance({
 					device_id: this.deviceId,
 					wallet_uuid: this.currentWallet.uuid,
-					chain_name: this.currentWallet.chain_name
+					chain: this.currentWallet.chain
 				}).then(res => {
 					this.walletDetail = res.result
-					console.log("this.walletDetail===", this.walletDetail )
 					this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
 						return {
 							...item,
-							// icon: config.imgUrl + item.icon
-							icon: "/static/image/ETH@2x.png"
+							icon: config.imgUrl + item.icon
 						}
 					})
 				})

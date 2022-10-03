@@ -113,8 +113,8 @@
 						let walletData = {
 							device_id: this.deviceId, // 设备ID
 							uuid: uuid,// 钱包ID
-							chain_name: 'Ethereum',// 链名称
-							asset_name: 'ETH',// 币种名称
+							chain: 'Ethereum',// 链名称
+							symbol: 'ETH',// 币种名称
 							wallt_name: this.walletName,// 钱包名称
 							address: this.address,// 地址
 							private_key: this.privateKey,// 私钥
@@ -133,8 +133,8 @@
 							mask: true
 						})
 						this.$api.submitWalletInfo({
-							"chain": "eth",
-							"symbol": "eth",
+							"chain": this.chain,
+							"symbol": this.symbol,
 							"network": "mainnet",
 							"device_id": this.deviceId,
 							"wallet_uuid": uuid,
@@ -145,16 +145,16 @@
 							console.log(res)
 							walletData.hasSubmit = true
 							this.$api.getAddressBalance({
-								"chain": "eth",
-								"symbol": "eth",
+								"chain": this.chain,
+								"symbol": this.symbol,
 								"network": "mainnet",
-								"address": "0x98E9D288743839e96A8005a6B51C770Bbf7788C0",
+								"address": this.address,
 								"contract_addr": "",
 							}).then(res => {
 								uni.hideLoading()
 								walletData.balance = res.result.balance
-								walletData.cny_price = 600
-								walletData.usdt_price = 100
+								walletData.cny_price = res.result.cny_price
+								walletData.usdt_price = res.result.usdt_price
 								ethData[0].list.push(walletData)
 								uni.setStorageSync('walletData', [].concat(otherData).concat(ethData))
 								uni.reLaunch({

@@ -18,20 +18,20 @@
 			<view class="ft32 mb50">交易记录</view>
 			<view class="list-item flex-between alcenter h80" v-for="(item, index) in recordList" :key="index" @tap="goDetail(item)">
 				<view class="flex alcenter">
-					<image v-if="item.is_error == 1" src="../../static/image/shibai@2x.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.tx_in_out == 'to' && item.txreceipt_status == 1" src="../../static/image/transfer.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.tx_in_out == 'from' && item.txreceipt_status == 1" src="../../static/image/zhuanchu@2x.png" mode="" class="mr40"></image>
-					<image v-if="item.is_error != 1 && item.txreceipt_status != 1" src="../../static/image/deng@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status == 2" src="../../static/image/shibai@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.tx_in_out == 'to' && item.txreceipt_status == 3" src="../../static/image/transfer.png" mode="" class="mr40"></image>
+					<image v-if="item.tx_in_out == 'from' && item.txreceipt_status == 3" src="../../static/image/zhuanchu@2x.png" mode="" class="mr40"></image>
+					<image v-if="item.txreceipt_status == 1" src="../../static/image/deng@2x.png" mode="" class="mr40"></image>
 					<view style="width: 300rpx;">
-						<view class="ft36">{{item.is_error == 1 ? '转账失败' : item.tx_in_out == 'from' && item.txreceipt_status == 1 ? 
-						'转出' : item.tx_in_out == 'from' && item.txreceipt_status != 1 ? 
-						'待转出' : item.tx_in_out == 'to' && item.txreceipt_status == 1 ? '收款' : '待收款'}}</view>
+						<view class="ft36">{{item.txreceipt_status == 1 ? '转账失败' : item.tx_in_out == 'from' && item.txreceipt_status == 3 ? 
+						'转出' : item.tx_in_out == 'from' && item.txreceipt_status != 3 ? 
+						'待转出' : item.tx_in_out == 'to' && item.txreceipt_status == 3 ? '收款' : '待收款'}}</view>
 						<view class="c_9397AF line-one">{{item.from}}</view>
 					</view>
 				</view>
 				<view class="flex-one" style="overflow: hidden;">
-					<view class="ft36 line-one" style="text-align: right;">{{(item.value / Math.pow(10, item.unit)).toFixed(4)}}</view>
-					<view class="c_9397AF" style="text-align: right;">{{item.date_tine}}</view>
+					<view class="ft36 line-one" style="text-align: right;">{{ item.value }}</view>
+					<view class="c_9397AF" style="text-align: right;">{{item.date_time}}</view>
 				</view>
 			</view>
 			<image v-if="recordList.length == 0" src="/static/image/kong@2x.png" mode="" class="empty-img"></image>
@@ -78,21 +78,23 @@
 			loadRecord() {
 				return new Promise((resolve, reject) => {
 					this.$api.get_tx_by_address({
-						action: this.contractaddress ? 'tokentx' : 'txlist', // 主链币 txlist  代币 tokentx
+						network: "mainnet",
+						chain: this.chain,
+						symbol: this.symbol,
 						address: this.address,
-						contract_address: this.contractaddress,
+						contract_address: this.contract_addr,
 						page: this.page.toString(),
 						page_size: this.page_size.toString()
 					}).then(res => {
-						if(!res.data || res.data.length < this.page_size) {
+						if(!res.result || res.result.length < this.page_size) {
 							this.hasMore = false
 						}else{
 							this.hasMore = true
 						}
 						if(this.page == 1) {
-							this.recordList = res.data || []
+							this.recordList = res.result || []
 						}else{
-							this.recordList = this.recordList.concat(res.data || [])
+							this.recordList = this.recordList.concat(res.result || [])
 						}
 						resolve(res)
 					}).catch((err) => {

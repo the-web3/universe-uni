@@ -43,7 +43,7 @@
 			return {
 				config,
 				deviceId: 'c3c0268fa44293f2',
-				toke_name: '',
+				token_name: '',
 				hotList: [],
 				page: 1,
 				page_size: 10,
@@ -59,8 +59,8 @@
 			uni.navigateBack()
 		},
 		onNavigationBarSearchInputChanged(e) {
-			this.toke_name = e.text
-			if(!this.toke_name) {
+			this.token_name = e.text
+			if(!this.token_name) {
 				this.list = []
 			}else{
 				this.page = 1
@@ -69,8 +69,8 @@
 		},
 		onNavigationBarSearchInputConfirmed(e) {
 			console.log(e.text)
-			this.toke_name = e.text
-			if(!this.toke_name) {
+			this.token_name = e.text
+			if(!this.token_name) {
 				this.list = []
 			}else{
 				this.page = 1
@@ -110,12 +110,12 @@
 			//热门代币
 			loadHotList() {
 				this.$api.hot_token_list().then(res => {
-					this.hotList = res.data
+					this.hotList = res.result
 				})
 			},
 			loadData() {
 				this.$api.sourch_add_token({
-					toke_name: this.toke_name,
+					token_name: this.token_name,
 					page: this.page,
 					page_size: this.page_size
 				}).then(res => {
@@ -178,8 +178,8 @@
 				let walletData = {
 					device_id: this.deviceId, // 设备ID
 					uuid: this.currentMainCoin.uuid,// 钱包ID
-					chain_name: this.currentMainCoin.chain_name,// 链名称
-					asset_name: item.token_symbol,// 币种名称
+					chain: this.currentMainCoin.chain,// 链名称
+					symbol: item.token_symbol,// 币种名称
 					wallt_name: this.currentMainCoin.wallt_name,// 钱包名称
 					address: this.currentMainCoin.address,// 地址
 					private_key: this.currentMainCoin.private_key,// 私钥
@@ -198,12 +198,11 @@
 					mask: true
 				})
 				this.$api.submitWalletInfo({
-					"chain": "eth",
-					"symbol": "eth",
+					"chain": this.chain,
+					"symbol": this.symbol,
 					"network": "mainnet",
 					"device_id": this.deviceId,
 					"wallet_uuid": uuid,
-					"asset_name": "ETH",
 					"wallet_name": this.walletName,
 					"address": this.address,
 					"contract_addr": "",
@@ -211,7 +210,7 @@
 					console.log('submit ' + JSON.stringify(res))
 					walletData.hasSubmit = true
 					this.$api.getAddressBalance({
-						"chain": this.currentMainCoin.chain_name,
+						"chain": this.currentMainCoin.chain,
 						"symbol": item.token_symbol,
 						"network": "mainnet",
 						"address": this.currentMainCoin.address,

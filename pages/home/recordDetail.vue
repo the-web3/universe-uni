@@ -2,13 +2,13 @@
 	<view class="record-detail-container plr40">
 		<view class="flex-column flex-center top-detail">
 			<image v-if="detail.is_error == 1" src="../../static/image/shibai@2x.png" mode=""></image>
-			<image v-if="detail.is_error != 1 && detail.tx_in_out == 'to' && detail.txreceipt_status == 1" src="../../static/image/transfer.png" mode=""></image>
-			<image v-if="detail.is_error != 1 && detail.tx_in_out == 'from' && detail.txreceipt_status == 1" src="../../static/image/zhuanchu@2x.png" mode=""></image>
-			<image v-if="detail.is_error != 1 && detail.txreceipt_status != 1" src="../../static/image/deng@2x.png" mode=""></image>
-			<view class="ft28 mt10">{{detail.is_error == 1 ? '转账失败' : detail.tx_in_out == 'from' && detail.txreceipt_status == 1 ?
-			'转出成功' : detail.tx_in_out == 'from' && detail.txreceipt_status != 1 ? 
-			'待转出' : detail.tx_in_out == 'to' && detail.txreceipt_status == 1 ? '收款成功' : '待收款'}}</view>
-			<view class="ft40 mt20">{{detail.tx_in_out == 'from' ? '-' : '+'}}{{(detail.value / Math.pow(10, detail.unit)).toFixed(4)}}{{detail.asset_name}}</view>
+			<image v-if="detail.is_error != 1 && detail.tx_in_out == 'to' && detail.txreceipt_status == 3" src="../../static/image/transfer.png" mode=""></image>
+			<image v-if="detail.is_error != 1 && detail.tx_in_out == 'from' && detail.txreceipt_status == 3" src="../../static/image/zhuanchu@2x.png" mode=""></image>
+			<image v-if="detail.is_error != 1 && detail.txreceipt_status != 3" src="../../static/image/deng@2x.png" mode=""></image>
+			<view class="ft28 mt10">{{detail.txreceipt_status == 2 ? '转账失败' : detail.tx_in_out == 'from' && detail.txreceipt_status == 3 ?
+			'转出成功' : detail.tx_in_out == 'from' && detail.txreceipt_status != 3 ? 
+			'待转出' : detail.tx_in_out == 'to' && detail.txreceipt_status == 3 ? '收款成功' : '待收款'}}</view>
+			<view class="ft40 mt20">{{detail.tx_in_out == 'from' ? '-' : '+'}}{{detail.value}}{{detail.asset_name}}</view>
 		</view>
 		<view class="form-item mb30">
 			<view class="label ft28 c_9397AF">发款方</view>
@@ -20,7 +20,7 @@
 		</view>
 		<view class="form-item mb30">
 			<view class="label ft28 c_9397AF">矿工费用</view>
-			<view class="ft32 line-one mt10">{{(detail.gas_used * detail.gas_price / Math.pow(10, 18)).toFixed(4)}} ETH</view>
+			<view class="ft32 line-one mt10">{{detail.fee}} ETH</view>
 		</view>
 		<view class="flex-between mt120">
 			<view style="width: 380rpx;">
@@ -40,7 +40,7 @@
 				</view>
 				<view class="form-item mb30">
 					<view class="label ft28 c_9397AF">交易时间</view>
-					<view class="ft32 line-one mt10">{{detail.date_tine}}</view>
+					<view class="ft32 line-one mt10">{{detail.date_time}}</view>
 				</view>
 			</view>
 			<view>

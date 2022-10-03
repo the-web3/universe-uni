@@ -73,7 +73,7 @@
             "disableHostCheck" : true,
             "proxy" : {
                 "/api" : {
-                    "target" : "http://193.203.215.185:8081/",
+                    "target" : "http://127.0.0.1:8000/",
                     "changeOrigin" : true,
                     "secure" : false,
                     /**重写路径**/

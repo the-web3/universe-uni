@@ -38,7 +38,7 @@ export const getWalletBalance = (params) => {
 // 根据地址获取交易记录
 export const get_tx_by_address = (params) => {
 	return $ajax.post({
-		url: 'api/get_tx_by_address',
+		url: 'api/get_address_transaction',
 		data: params
 	})
 }
@@ -59,7 +59,7 @@ export const get_wallet_asset = (params) => {
 // 广播交易
 export const send_tx = (params) => {
 	return $ajax.post({
-		url: 'api/send_tx',
+		url: 'api/send_transaction',
 		data: params
 	})
 }
