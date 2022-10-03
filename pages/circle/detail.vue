@@ -7,31 +7,33 @@
 			<text>{{ detail && detail.author }}</text>
 			<text>{{ detail && detail.created_at }}</text>
 		</view>
-		<view class="detail-box" v-html="detail&&detail.content"></view>
+		<view class="detail-box" v-html="detail&&detail.detail"></view>
 	</view>
 </template>
 
 <script>
-	import { getNewsDetail } from '@/api/news.js'
+	import { getArcticleDetail } from '@/api/circle.js'
 	export default {
 		name: 'newsDetail',
 		data () {
 			return {
 				id: null,
+				type: null,
 				detail: null
 			}
 		},
 		onLoad (option) {
 			console.log(option)
 			this.id = +option.id
-			this.getNewsDetail()
+			this.type = +option.type
+			this.getArcticleDetail()
 		},
 		methods: {
-			async getNewsDetail () {
+			async getArcticleDetail () {
 				try {
-					const res = await getNewsDetail({ news_id: this.id })
-					if (+res.code === 2000) {
-						this.detail = res.data || null
+					const res = await getArcticleDetail({ type: this.type, article_id: this.id })
+					if (+res.code === 200) {
+						this.detail = res.result || null
 					}
 				} catch (e) {
 					console.log(e)

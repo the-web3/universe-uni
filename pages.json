@@ -300,7 +300,7 @@
             
         }
         ,{
-            "path" : "pages/news/news",
+            "path" : "pages/circle/article",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "",
@@ -311,7 +311,7 @@
             }  
         }
         ,{
-            "path" : "pages/news/detail",
+            "path" : "pages/circle/detail",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "",
@@ -432,7 +432,7 @@
 				"text": "发现"
 			},
 			{
-				"pagePath": "pages/news/news",
+				"pagePath": "pages/circle/article",
 				"iconPath": "static/image/tabbar/news.png",
 				"selectedIconPath": "static/image/tabbar/news-selected.png",
 				"text": "资讯"

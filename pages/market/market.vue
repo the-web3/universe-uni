@@ -42,7 +42,7 @@
 </template>
 
 <script>
-	import { getMarketPrice } from '@/api/news.js'
+	import { getMarketPrice } from '@/api/market.js'
 	import config from '@/config.js'
 	export default {
 		data() {

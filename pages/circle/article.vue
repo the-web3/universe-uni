@@ -22,19 +22,19 @@
 								v-for="(item, index) in fastList"
 								:key="index"
 							>
-								<view class="date">{{ item.date }}</view>
+								<view class="date">{{ item.add_time }}</view>
 								<view class="fast-article-item">
 									<view class="article-item">
 										<view class="title-box flex alcenter">
 											<view class="circle-icon"></view>
-											<text class="time">{{ item.time }}</text>
+											<text class="time">{{ item.add_time }}</text>
 											<view class="icon">快讯</view>
 										</view>
 										<view class="article-item-box">
 											<view class="title-text line-two">{{ item.title }}</view>
 											<view class="desc-text">{{ item.abstract }}</view>
 											<image class="more-img" src="../../static/image/shenglve.png" mode=""></image>
-											<navigator class="all-btn" :url="`/pages/news/detail?id=${item.id}`">查看全文</navigator>
+											<navigator class="all-btn" :url="`/pages/circle/detail?id=${item.id}&type=${item.type}`">查看全文</navigator>
 											<view class="auth-box flex-between alcenter"><text calss="auth">{{ item.author }}</text>
 											</view>
 										</view>
@@ -55,7 +55,7 @@
 					>
 					<view class="content-box">
 						<view class="article-list-box">
-							<navigator :url="`/pages/news/detail?id=${item.id}`" class="flex" v-for="(item, index) in articleList" :key="index">
+							<navigator :url="`/pages/circle/detail?id=${item.id}&type=${item.type}`" class="flex" v-for="(item, index) in articleList" :key="index">
 								<view class="article-list-item flex-between">
 									<view class="img-box flex-center">
 										<image class="img" :src="`${config.base_url + item.image}`" mode="aspectFit"></image>
@@ -64,7 +64,7 @@
 										<text class="title line-two">{{ item.title }}</text>
 										<view class="flex-between">
 											<text class="auth">{{ item.author }}</text>
-											<text class="time">{{ item.created_at }}</text>
+											<text class="time">{{ item.add_time }}</text>
 										</view>
 									</view>
 								</view>
@@ -80,7 +80,7 @@
 <script>
 	import MescrollUni from "@/components/mescroll-uni/mescroll-uni.vue";
 	import vTabs from '@/components/v-tabs/v-tabs.vue'
-	import { getNewsList } from '@/api/news.js'
+	import { getCatList, getArcticleList} from '@/api/circle.js'
 	import config from '@/config.js'
 	export default {
 		components: {
@@ -91,16 +91,16 @@
 			return {
 				config,
 				currentTab: 0,
-				tabs: ['快讯', '文章'],
+				tabs: ['区块链安全', '技术文章'],
 				articlePageParams: { // 文章
-					news_type: 1,
+					type: 0,
 					page: 1,
 					pageSize: 10,
 					total: null
 				},
 				articleList: [],
 				fastPageParams: { // 快讯
-					news_type: 0,
+					type: 1,
 					page: 1,
 					pageSize: 10,
 					total: null
@@ -142,7 +142,7 @@
 			this.scrollHeight = windowHeight - statusBarHeight - uni.upx2px(100)
 		},
 		mounted () {
-			Promise.all([this.getNewsList(), this.getFastList()])
+			Promise.all([this.getArcticleList(), this.getFastList()])
 		},
 		methods: {
 			listChange(e) {
@@ -180,18 +180,18 @@
 			},
 			getListDataFromNet(pageNum,paramsName,successCallback,errorCallback) {
 				this[paramsName].page = pageNum
-				getNewsList (this[paramsName]).then(res => {
+				getArcticleList (this[paramsName]).then(res => {
 					successCallback && successCallback(res.data.gds_lst);
 				}).catch(err => {
 					errorCallback && errorCallback();
 				})
 			},
-			async getNewsList () {
+			async getArcticleList () {
 				try {
-					const res = await getNewsList(this.articlePageParams)
-					if (+res.code === 2000) {
-						this.articleList = res.data.gds_lst || []
-						this.articlePageParams.total = res.data.total
+					const res = await getArcticleList(this.articlePageParams)
+					if (+res.code === 200) {
+						this.articleList = res.result.gds_lst || []
+						this.articlePageParams.total = res.result.total
 					}
 				} catch (e) {
 					console.log(e)
@@ -199,10 +199,10 @@
 			},
 			async getFastList () {
 				try {
-					const res = await getNewsList(this.fastPageParams)
-					if (+res.code === 2000) {
-						this.fastList = res.data.gds_lst || []
-						this.fastPageParams.total = +res.data.total
+					const res = await getArcticleList(this.fastPageParams)
+					if (+res.code === 200) {
+						this.fastList = res.result.gds_lst || []
+						this.fastPageParams.total = +res.result.total
 					}
 				} catch (e) {
 					console.log(e)

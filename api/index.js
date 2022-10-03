@@ -1,7 +1,9 @@
 import * as api from './api';
-import * as newsApi from './news';
+import * as circleApi from './circle';
+import * as marketApi from './market';
 
 export default {
     ...api,
-    ...newsApi
+    ...circleApi,
+	...marketApi
 };
