@@ -1,448 +1,393 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-            "path" : "pages/home/home",
-            "style" :                                                                                    
-            {
+    "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+        {
+            "path": "pages/home/home",
+            "style": {
                 "navigationBarTitleText": "首页",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/find/find",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/find/find",
+            "style": {
                 "navigationBarTitleText": "发现",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/my/my",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/my",
+            "style": {
                 "navigationBarTitleText": "我的",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/market/market",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/market/market",
+            "style": {
                 "navigationBarTitleText": "行情",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/addWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/newMarket/index",
+            "style": {
+                "navigationBarTitleText": "行情",
+                "enablePullDownRefresh": false,
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        },
+        {
+            "path": "pages/newMarket/currency",
+            "style": {
+                "navigationBarTitleText": "币种",
+                "enablePullDownRefresh": false,
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        },
+        {
+            "path": "pages/home/addWallet",
+            "style": {
                 "navigationBarTitleText": "添加钱包",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/gather",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/gather",
+            "style": {
                 "navigationBarTitleText": "收款",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/home/transfer",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/transfer",
+            "style": {
                 "navigationBarTitleText": "转账",
                 "enablePullDownRefresh": true
             }
-            
-        }
-        ,{
-            "path" : "pages/home/propertyDetail",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/propertyDetail",
+            "style": {
                 "navigationBarTitleText": "资产详情",
                 "enablePullDownRefresh": true,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/my/myWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/myWallet",
+            "style": {
                 "navigationBarTitleText": "我的钱包",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/createWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/createWallet",
+            "style": {
                 "navigationBarTitleText": "创建身份钱包",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/addWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/addWallet",
+            "style": {
                 "navigationBarTitleText": "添加钱包",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/keyAdd",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/keyAdd",
+            "style": {
                 "navigationBarTitleText": "私钥导入",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/my/wordAdd",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/wordAdd",
+            "style": {
                 "navigationBarTitleText": "助记词",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/my/property",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/property",
+            "style": {
                 "navigationBarTitleText": "资产总览",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/tradingRecord",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/tradingRecord",
+            "style": {
                 "navigationBarTitleText": "交易记录",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/addressBook",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/addressBook",
+            "style": {
                 "navigationBarTitleText": "地址簿",
                 "enablePullDownRefresh": true
             }
-            
-        }
-        ,{
-            "path" : "pages/my/addAddress",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/addAddress",
+            "style": {
                 "navigationBarTitleText": "添加地址",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/aboutUs",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/aboutUs",
+            "style": {
                 "navigationBarTitleText": "关于我们",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/flash",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/flash",
+            "style": {
                 "navigationBarTitleText": "闪兑",
                 "enablePullDownRefresh": false,
-				"navigationBarTextStyle":"white",
-				"navigationBarBackgroundColor": "#4C6EF5",
-				"app-plus": {
-					"titleNView": {
-						"buttons": [
-							{
-								"text": "兑换记录",
-								"float": "right",
-								"fontSize": "14px",
-								"width": "80px"
-							}
-						]
-					}
-				}
+                "navigationBarTextStyle": "white",
+                "navigationBarBackgroundColor": "#4C6EF5",
+                "app-plus": {
+                    "titleNView": {
+                        "buttons": [
+                            {
+                                "text": "兑换记录",
+                                "float": "right",
+                                "fontSize": "14px",
+                                "width": "80px"
+                            }
+                        ]
+                    }
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/home/flashRecord",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/flashRecord",
+            "style": {
                 "navigationBarTitleText": "兑换记录",
                 "enablePullDownRefresh": true
             }
-            
-        }
-        ,{
-            "path" : "pages/home/directTransfer",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/directTransfer",
+            "style": {
                 "navigationBarTitleText": "转账",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/walletDetail",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/walletDetail",
+            "style": {
                 "navigationBarTitleText": "钱包详情",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/updatePassword",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/updatePassword",
+            "style": {
                 "navigationBarTitleText": "修改密码",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/resetPssword",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/resetPssword",
+            "style": {
                 "navigationBarTitleText": "重置密码",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/importWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/importWallet",
+            "style": {
                 "navigationBarTitleText": "导入身份钱包",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
+                "app-plus": {
+                    "titleNView": false
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/home/createWallet",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/createWallet",
+            "style": {
                 "navigationBarTitleText": "创建身份钱包",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/backupWord",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/backupWord",
+            "style": {
                 "navigationBarTitleText": "备份助记词",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/backupStep",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/backupStep",
+            "style": {
                 "navigationBarTitleText": "备份助记词",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/validateWord",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/validateWord",
+            "style": {
                 "navigationBarTitleText": "验证助记词",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/circle/article",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/circle/article",
+            "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": false
-				}
-            }  
-        }
-        ,{
-            "path" : "pages/circle/detail",
-            "style" :                                                                                    
-            {
+                "app-plus": {
+                    "titleNView": false
+                }
+            }
+        },
+        {
+            "path": "pages/circle/detail",
+            "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
             }
-        }
-        ,{
-
-            "path" : "pages/my/setting",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/setting",
+            "style": {
                 "navigationBarTitleText": "系统设置",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/my/helpCenter",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/my/helpCenter",
+            "style": {
                 "navigationBarTitleText": "帮助中心",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/coinDetail",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/coinDetail",
+            "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/exportWord",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/exportWord",
+            "style": {
                 "navigationBarTitleText": "导出助记词",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/home/tokenCoin",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/tokenCoin",
+            "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false,
-				"app-plus": {
-					"titleNView": {
-						"autoBackButton": false,
-						"searchInput": {
-							"placeholder": "请输入搜索内容",
-							"borderRadius": "20px",
-							"backgroundColor": "#eee"
-						},
-						"buttons": [
-							{
-								"text": "取消",
-								"float": "right",
-								"fontSize": "14px",
-								"width": "60px"
-							}
-						]
-					}
-				}
+                "app-plus": {
+                    "titleNView": {
+                        "autoBackButton": false,
+                        "searchInput": {
+                            "placeholder": "请输入搜索内容",
+                            "borderRadius": "20px",
+                            "backgroundColor": "#eee"
+                        },
+                        "buttons": [
+                            {
+                                "text": "取消",
+                                "float": "right",
+                                "fontSize": "14px",
+                                "width": "60px"
+                            }
+                        ]
+                    }
+                }
             }
-            
-        }
-        ,{
-            "path" : "pages/home/recordDetail",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/home/recordDetail",
+            "style": {
                 "navigationBarTitleText": "交易详情",
                 "enablePullDownRefresh": false
             }
-            
-        }
-        ,{
-            "path" : "pages/find/swap",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/find/swap",
+            "style": {
                 "navigationBarTitleText": "swap",
                 "enablePullDownRefresh": false
             }
-            
         }
     ],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#ffffff",
-		"backgroundColor": "#ffffff"
-	},
-	"tabBar": {
-		"borderStyle": "white",
-		"backgroundColor": "#fff",
-		"color": "#D6D9E0",
-		"selectedColor": "#4C6EF5",
-		"list": [
-			{
-				"pagePath": "pages/home/home",
-				"iconPath": "static/image/tabbar/home.png",
-				"selectedIconPath": "static/image/tabbar/home-selected.png",
-				"text": "首页"
-			},
-			{
-				"pagePath": "pages/market/market",
-				"iconPath": "static/image/tabbar/market.png",
-				"selectedIconPath": "static/image/tabbar/market-selected.png",
-				"text": "行情"
-			},
-			{
-				"pagePath": "pages/find/find",
-				"iconPath": "static/image/tabbar/find.png",
-				"selectedIconPath": "static/image/tabbar/find-selected.png",
-				"text": "发现"
-			},
-			{
-				"pagePath": "pages/circle/article",
-				"iconPath": "static/image/tabbar/news.png",
-				"selectedIconPath": "static/image/tabbar/news-selected.png",
-				"text": "资讯"
-			},
-			{
-				"pagePath": "pages/my/my",
-				"iconPath": "static/image/tabbar/my.png",
-				"selectedIconPath": "static/image/tabbar/my-selected.png",
-				"text": "我的"
-			}
-		]
-	}
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "uni-app",
+        "navigationBarBackgroundColor": "#ffffff",
+        "backgroundColor": "#ffffff"
+    },
+    "tabBar": {
+        "borderStyle": "white",
+        "backgroundColor": "#fff",
+        "color": "#D6D9E0",
+        "selectedColor": "#4C6EF5",
+        "list": [
+            {
+                "pagePath": "pages/home/home",
+                "iconPath": "static/image/tabbar/home.png",
+                "selectedIconPath": "static/image/tabbar/home-selected.png",
+                "text": "首页"
+            },
+            {
+                "pagePath": "pages/newMarket/index",
+                "iconPath": "static/image/tabbar/market.png",
+                "selectedIconPath": "static/image/tabbar/market-selected.png",
+                "text": "行情"
+            },
+            {
+                "pagePath": "pages/find/find",
+                "iconPath": "static/image/tabbar/find.png",
+                "selectedIconPath": "static/image/tabbar/find-selected.png",
+                "text": "发现"
+            },
+            {
+                "pagePath": "pages/circle/article",
+                "iconPath": "static/image/tabbar/news.png",
+                "selectedIconPath": "static/image/tabbar/news-selected.png",
+                "text": "资讯"
+            },
+            {
+                "pagePath": "pages/my/my",
+                "iconPath": "static/image/tabbar/my.png",
+                "selectedIconPath": "static/image/tabbar/my-selected.png",
+                "text": "我的"
+            }
+        ]
+    }
 }
