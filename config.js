@@ -6,5 +6,6 @@ export default {
 	// #ifdef H5
 		base_url: '/api/',
 	// #endif
-	imgUrl: 'http://193.203.215.185:8080/media/'
+	imgUrl: 'http://193.203.215.185:8080/media/',
+	socketBaseUrl: 'ws://193.203.215.185:8080'
 }

@@ -63,15 +63,51 @@
 		},
 		onShow () {
 			this.getMarketPrice()
-			this.timer = setInterval(() => {
-				this.getMarketPrice()
-			}, 3000)
+      this.initSocket()
 		},
 		onHide () {
 			clearInterval(this.timer)
 			this.timer = null
 		},
 		methods: {
+      initSocket () {
+        function decode(msg) {
+          if (msg && msg.data) {
+            return JSON.parse(msg.data)
+          }
+          return null
+        }
+
+        const _this = this
+        const socketUrl = this.config.socketBaseUrl + '/ws/market/';
+        try {
+          this.socket = new WebSocket(socketUrl);
+        } catch (e) {
+          console.log(e)
+          return
+        }
+        this.socket.onopen = function() {
+          console.log('socket init success')
+          _this.socket.send(JSON.stringify({
+            method: 'register',
+            exchange_id: 1,
+            device_id: 0
+          }));
+        };
+        this.socket.onmessage = function(msg) {
+          const result = decode(msg)
+          if (result.code === 0 ) {
+            console.log('data: ' + JSON.stringify(result.data))
+            _this.gds_lst = result.data
+          }
+        };
+        this.socket.onerror = function(err) {
+          console.log('socket onerror' + JSON.stringify(err));
+        };
+        this.socket.onclose = function() {
+          console.log('socket close');
+        }
+      },
 			async getMarketPrice () {
 				try {
 					const res = await getMarketPrice(this.pageParams)
