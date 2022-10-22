@@ -37,16 +37,18 @@
             src="../../static/image/shangxia@2x.png"
             mode="aspectFit"
           ></image>
-          <image
-            class="edit-icon"
-            src="../../static/image/edit-bybit.png"
-            mode="aspectFit"
-          ></image>
+          <navigator url="./currency">
+            <image
+              class="edit-icon"
+              src="../../static/image/edit-bybit.png"
+              mode="aspectFit"
+            ></image
+          ></navigator>
         </view>
       </view>
       <view class="follow-currency-body">
         <view class="follow-currency-data-list">
-          <view class="follow-currency-data-item">
+          <navigator class="follow-currency-data-item" url="./detail">
             <view class="name-item">
               <view class="mb10">
                 <text class="big-font light-color">LUNC</text>/USDT
@@ -61,7 +63,7 @@
             <view class="change-item">
               <view class="change-h"> -25.00% </view>
             </view>
-          </view>
+          </navigator>
           <view class="follow-currency-data-item">
             <view class="name-item">
               <view class="mb10">

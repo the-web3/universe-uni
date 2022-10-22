@@ -345,6 +345,18 @@
                 "enablePullDownRefresh": false
             }
         }
+        ,{
+            "path" : "pages/newMarket/detail",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"app-plus": {
+				    "titleNView": false
+				}
+            }
+            
+        }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "black",
