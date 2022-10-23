@@ -56,12 +56,12 @@
             :key="item.id"
           >
             <view class="name-item">
-              <!-- <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
+              <view class="mb10">
+                <text class="big-font light-color">{{ item.qoute_asset }}</text
+                >/{{ item.base_asset }}
               </view>
-              <view> 24h turnover ¥79.21M </view> -->
-              <view class="mb10 big-font light-color">{{ item.exchange }}</view>
+              <view>{{ item.exchange }} </view>
+              <!-- <view class="mb10 big-font light-color">{{ item.exchange }}</view> -->
             </view>
             <view class="price-item">
               <view class="big-font light-color mb10">{{
@@ -207,8 +207,6 @@ export default {
           margin: 20px 0;
           .name-item {
             width: 30%;
-            display: flex;
-            align-items: center;
             .big-font {
               font-size: 18px;
               line-height: 20px;
