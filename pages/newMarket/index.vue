@@ -1,12 +1,13 @@
 <template>
-  <view class="new-market-container">
+  <view class="new-market-container" v-if="tabs.length">
     <v-tabs
       v-model="activeTab"
       :scroll="tabs.length >= 6"
-      :tabs="tabs"
+      :tabs="tabs.map((item) => item.name)"
       fontSize="30rpx"
       color="#222222"
       activeColor="#222222"
+      @change="handleTabsChange"
     ></v-tabs>
     <view class="gray-line"></view>
     <view class="follow-currency-container">
@@ -17,12 +18,12 @@
             src="../../static/image/shangxia@2x.png"
             mode="aspectFit"
           ></image>
-          <text>/24h vol</text
+          <!-- <text>/24h vol</text
           ><image
             class="sort-icon"
             src="../../static/image/shangxia@2x.png"
             mode="aspectFit"
-          ></image>
+          ></image> -->
         </view>
         <view class="price-box"
           >Price<image
@@ -48,100 +49,28 @@
       </view>
       <view class="follow-currency-body">
         <view class="follow-currency-data-list">
-          <navigator class="follow-currency-data-item" url="./detail">
+          <view
+            class="follow-currency-data-item"
+            url="./detail"
+            v-for="item in exchangeList"
+            :key="item.id"
+          >
             <view class="name-item">
-              <view class="mb10">
+              <!-- <view class="mb10">
                 <text class="big-font light-color">LUNC</text>/USDT
                 <text class="light-color">-Bybit</text>
               </view>
-              <view> 24h turnover ¥79.21M </view>
+              <view> 24h turnover ¥79.21M </view> -->
+              <view class="mb10 big-font light-color">{{ item.exchange }}</view>
             </view>
             <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
+              <view class="big-font light-color mb10">{{
+                item.usd_price
+              }}</view>
+              <view>¥{{ item.cny_price }}</view>
             </view>
             <view class="change-item">
-              <view class="change-h"> -25.00% </view>
-            </view>
-          </navigator>
-          <view class="follow-currency-data-item">
-            <view class="name-item">
-              <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
-              </view>
-              <view> 24h turnover ¥79.21M </view>
-            </view>
-            <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
-            </view>
-            <view class="change-item">
-              <view class="change-l"> -25.00% </view>
-            </view>
-          </view>
-          <view class="follow-currency-data-item">
-            <view class="name-item">
-              <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
-              </view>
-              <view> 24h turnover ¥79.21M </view>
-            </view>
-            <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
-            </view>
-            <view class="change-item">
-              <view class="change-h"> -25.00% </view>
-            </view>
-          </view>
-          <view class="follow-currency-data-item">
-            <view class="name-item">
-              <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
-              </view>
-              <view> 24h turnover ¥79.21M </view>
-            </view>
-            <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
-            </view>
-            <view class="change-item">
-              <view class="change-l"> -25.00% </view>
-            </view>
-          </view>
-          <view class="follow-currency-data-item">
-            <view class="name-item">
-              <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
-              </view>
-              <view> 24h turnover ¥79.21M </view>
-            </view>
-            <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
-            </view>
-            <view class="change-item">
-              <view class="change-h"> -25.00% </view>
-            </view>
-          </view>
-          <view class="follow-currency-data-item">
-            <view class="name-item">
-              <view class="mb10">
-                <text class="big-font light-color">LUNC</text>/USDT
-                <text class="light-color">-Bybit</text>
-              </view>
-              <view> 24h turnover ¥79.21M </view>
-            </view>
-            <view class="price-item">
-              <view class="big-font light-color mb10">0.89</view>
-              <view>¥241.23</view>
-            </view>
-            <view class="change-item">
-              <view class="change-l"> -25.00% </view>
+              <view class="change-h"> {{ item.margin }} </view>
             </view>
           </view>
         </view>
@@ -151,14 +80,76 @@
 </template>
 
 <script>
+import { getExchanges, getMarketPrice } from "@/api/market.js";
 export default {
   data() {
     return {
       activeTab: 0,
-      tabs: ["Favorites", "Binance", "Okx", "Bybit", "FTX"],
+      tabs: [],
+      exchangeList: [],
+      deviceId: "0",
     };
   },
-  methods: {},
+  onLoad() {
+    // 获取设备信息
+    // #ifdef APP-PLUS
+    plus.device.getInfo({
+      success: (e) => {
+        this.deviceId = e.uuid;
+        console.log("getDeviceInfo success: " + JSON.stringify(e));
+      },
+      fail: (e) => {
+        console.log("getDeviceInfo failed: " + JSON.stringify(e));
+      },
+    });
+    // #endif
+  },
+  mounted() {
+    this.getExchanges();
+  },
+  methods: {
+    async getExchanges() {
+      // 获取币种
+      try {
+        const res = await getExchanges({ type: "Cex" });
+        console.log(res, "getExchanges");
+        if (+res.code !== 200) {
+          return uni.showToast({ title: res.msg, icon: "none" });
+        }
+        this.tabs =
+          [
+            {
+              id: "",
+              market_type: "Cex",
+              name: "Favorites",
+              status: "Active",
+            },
+            ...res.result,
+          ] || [];
+        this.getMarketPrice(this.tabs[0].id);
+      } catch (err) {
+        uni.showToast({ title: err.msg, icon: "none" });
+      }
+    },
+    async getMarketPrice(exchange_id) {
+      try {
+        let params = { device_id: this.deviceId };
+        exchange_id ? (params.exchange_id = exchange_id) : null;
+        const res = await getMarketPrice(params);
+        console.log(res, "getMarketPrice");
+        if (+res.code !== 200) {
+          return uni.showToast({ title: res.msg, icon: "none" });
+        }
+        this.exchangeList = res.result || [];
+      } catch (err) {
+        uni.showToast({ title: err.msg, icon: "none" });
+      }
+    },
+    handleTabsChange(index) {
+      this.exchangeList = [];
+      this.getMarketPrice(this.tabs[index].id);
+    },
+  },
 };
 </script>
 
@@ -191,7 +182,7 @@ export default {
         margin-left: 5px;
       }
       .name-box {
-        width: 45%;
+        width: 30%;
         display: flex;
         align-items: center;
         text {
@@ -199,12 +190,12 @@ export default {
         }
       }
       .price-box {
-        width: 20%;
+        width: 30%;
         display: flex;
         align-items: center;
       }
       .change-box {
-        width: 35%;
+        width: 40%;
         display: flex;
         align-items: center;
       }
@@ -215,7 +206,9 @@ export default {
           display: flex;
           margin: 20px 0;
           .name-item {
-            width: 50%;
+            width: 30%;
+            display: flex;
+            align-items: center;
             .big-font {
               font-size: 18px;
               line-height: 20px;
@@ -225,7 +218,7 @@ export default {
             }
           }
           .price-item {
-            width: 20%;
+            width: 30%;
             .big-font {
               font-size: 20px;
               line-height: 22px;
@@ -235,7 +228,7 @@ export default {
             }
           }
           .change-item {
-            width: 30%;
+            width: 40%;
             display: flex;
             justify-content: center;
             align-items: center;

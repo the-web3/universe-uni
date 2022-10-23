@@ -7,3 +7,10 @@ export const getMarketPrice = (params) => {
 		data: params
   })
 }
+
+export const getExchanges = data => {
+	return $ajax.post({
+			url: 'api/get_exchanges',
+			data
+	})
+}
