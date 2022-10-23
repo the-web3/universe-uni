@@ -8,8 +8,9 @@ bin-release/
 .settings/
 node_modules
 .hbuilderx
-.DS_Store
+
 # Executables
+*.DS_Store
 *.swf
 *.air
 *.ipa

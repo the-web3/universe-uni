@@ -314,6 +314,7 @@ export default {
 
     &-item {
       display: flex;
+      justify-content: center;
       align-items: center;
       height: 100%;
       position: relative;

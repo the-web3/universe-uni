@@ -3,7 +3,7 @@
     <view class="currency-title-box">
       <view></view>
       <view class="title">Edit Favorites</view>
-      <view class="cancel">Done</view>
+      <view class="cancel" @click="handleCancel">Done</view>
     </view>
     <view class="currency-select-list-box">
 		<view class="currency-select-title">
@@ -71,7 +71,11 @@ export default {
   data() {
     return {};
   },
-  methods: {},
+  methods: {
+	  handleCancel() {
+		  uni.navigateBack();
+	  }
+  },
 };
 </script>
 
