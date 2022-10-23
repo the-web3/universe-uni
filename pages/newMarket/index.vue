@@ -70,7 +70,14 @@
               <view>¥{{ item.cny_price }}</view>
             </view>
             <view class="change-item">
-              <view class="change-h"> {{ item.margin }} </view>
+              <view
+                :class="{
+                  'change-h': item.margin.includes('-'),
+                  'change-l': item.margin.includes('+'),
+                }"
+              >
+                {{ item.margin }}
+              </view>
             </view>
           </view>
         </view>
