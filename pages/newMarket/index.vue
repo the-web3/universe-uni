@@ -1,5 +1,6 @@
 <template>
   <view class="new-market-container" v-if="tabs.length">
+    <view class="status-bar"></view>
     <v-tabs
       v-model="activeTab"
       :scroll="tabs.length >= 6"
@@ -95,6 +96,7 @@ export default {
       tabs: [],
       exchangeList: [],
       deviceId: "0",
+      timer: null,
     };
   },
   onLoad() {
@@ -113,6 +115,13 @@ export default {
   },
   mounted() {
     this.getExchanges();
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.getMarketPrice(this.tabs[this.activeTab].id);
+    }, 1500);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   methods: {
     async getExchanges() {
@@ -161,6 +170,7 @@ export default {
 </script>
 
 <style lang="scss">
+$status_Height: var(--status-bar-height);
 .new-market-container {
   .gray-line {
     width: 100%;
