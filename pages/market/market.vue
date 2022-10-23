@@ -44,6 +44,7 @@
 <script>
 	import { getMarketPrice } from '@/api/market.js'
 	import config from '@/config.js'
+  import {getUUID} from "../../common/uuid";
 	export default {
 		data() {
 			return {
@@ -58,20 +59,75 @@
 					pageSize: 1000,
 					total: null
 				},
-				timer: null
+				timer: null,
+        uuid: null,
 			};
 		},
 		onShow () {
 			this.getMarketPrice()
-			this.timer = setInterval(() => {
-				this.getMarketPrice()
-			}, 3000)
 		},
 		onHide () {
-			clearInterval(this.timer)
-			this.timer = null
+			// clearInterval(this.timer)
+			// this.timer = null
 		},
+    created(){
+      this.initSocket()
+      // window.addEventListener('beforeunload', this.destroySocket)
+    },
+    beforeDestroy(){
+      this.destroySocket()
+    },
 		methods: {
+      destroySocket() {
+        let _this = this;
+        if (_this.socket) {
+          _this.socket.send(JSON.stringify({
+            method: 'un_register',
+            uuid: _this.uuid,
+          }));
+        }
+      },
+      initSocket () {
+        this.uuid = getUUID()
+        function decode(msg) {
+          if (msg && msg.data) {
+            return JSON.parse(msg.data)
+          }
+          return null
+        }
+
+        const _this = this
+        const socketUrl = this.config.socketBaseUrl + '/ws/market/';
+        console.log('start connect socket')
+        try {
+          this.socket = new WebSocket(socketUrl);
+        } catch (e) {
+          console.log(e)
+          return
+        }
+        this.socket.onopen = function() {
+          console.log('socket init success')
+          _this.socket.send(JSON.stringify({
+            method: 'register',
+            uuid: _this.uuid,
+            exchange_id: 1,
+            device_id: 0
+          }));
+        };
+        this.socket.onmessage = function(msg) {
+          const result = decode(msg)
+          if (result.code === 0 ) {
+            console.log('data: ' + JSON.stringify(result.data))
+            _this.gds_lst = result.data
+          }
+        };
+        this.socket.onerror = function(err) {
+          console.log('socket onerror' + JSON.stringify(err));
+        };
+        this.socket.onclose = function() {
+          console.log('socket close');
+        }
+      },
 			async getMarketPrice () {
 				try {
 					const res = await getMarketPrice(this.pageParams)
