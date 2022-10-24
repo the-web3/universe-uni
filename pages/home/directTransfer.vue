@@ -92,6 +92,7 @@
 </template>
 
 <script>
+	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -121,12 +122,8 @@
 			}
 		},
 		onLoad(options) {
-			let walletData = uni.getStorageSync('walletData')
-			this.nowWalletData = walletData.find(item => {
-				return item.type == 'ETH'
-			}).list
-			this.selectCoin = this.nowWalletData[0]
 			this.currentWallet = uni.getStorageSync('currentWallet')
+			this.selectCoin = this.currentWallet
 			this.currentWallet.balance = Number(this.currentWallet.balance).toFixed(4)
 			this.currentWallet.usdt_price = Number(this.currentWallet.usdt_price).toFixed(4)
 			this.loadSignData()

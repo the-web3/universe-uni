@@ -30,6 +30,7 @@
 </template>
 
 <script>
+	//TODO: 没有接ARBI
 	import * as address from '@/common/word/address';
 	export default {
 		data() {

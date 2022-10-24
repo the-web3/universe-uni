@@ -234,13 +234,6 @@
             }
         },
         {
-            "path": "pages/home/createWallet",
-            "style": {
-                "navigationBarTitleText": "创建身份钱包",
-                "enablePullDownRefresh": false
-            }
-        },
-        {
             "path": "pages/home/backupWord",
             "style": {
                 "navigationBarTitleText": "备份助记词",

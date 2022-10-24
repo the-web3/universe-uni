@@ -15,6 +15,8 @@
 <script>
 	import * as base from '@/common/word/base';
 	import * as address from '@/common/word/address';
+	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
+	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -26,10 +28,12 @@
 				deviceId: 'c3c0268fa44293f2',
 				mnemonicCode: '',
 				address: '',
-				privateKey: ''
+				privateKey: '',
+				type: ''
 			}
 		},
 		async onLoad(options) {
+			this.type = options.type
 			this.walletName = options.walletName
 			this.password = options.password
 			this.words = options.words.split(' ')
@@ -82,45 +86,23 @@
 				})
 				if(flag) {
 					if(this.fillWords.toString() == this.words.toString()) {
-						let allWalletData = uni.getStorageSync('walletData')
-						let ethData = {}
-						let otherData = []
-						if(allWalletData) {
-							ethData = allWalletData.filter(item => {
-								return item.type == 'ETH'
-							})
-							ethData ? ethData : [
-								{
-									type: 'ETH',
-									list: []
-								}
-							],
-							otherData = allWalletData.filter(item => {
-								return item.type != 'ETH'
-							})
-							otherData ? otherData : []
-						}else{
-							allWalletData = []
-							ethData = [
-								{
-									type: 'ETH',
-									list: []
-								}
-							]
-						}
-						console.log(allWalletData, ethData)
-						let uuid = Math.random().toString(36).substr(-10)
-						let walletData = {
+						let uuid = Math.random().toString(36).substr(-10);
+						const allWalletData = getAllWalletData();
+						const currentWallet = [...INIT_WALLET_DATA,...allWalletData].filter(item => {
+							return item.type == this.type
+						});
+						const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
+						let currentWalletData = {
 							device_id: this.deviceId, // 设备ID
-							uuid: uuid,// 钱包ID
-							chain: 'Ethereum',// 链名称
-							symbol: 'ETH',// 币种名称
+							uuid,// 钱包ID
+							chain,// 链名称
+							symbol,// 币种名称
 							wallt_name: this.walletName,// 钱包名称
 							address: this.address,// 地址
 							private_key: this.privateKey,// 私钥
 							mnemonic_code: this.mnemonicCode,// 助记词编码
 							password: this.password,// 密码
-							icon: '/static/image/ETH@2x.png',// 图标
+							icon: activeImg,// 图标
 							contract_address: '',// 合约地址
 							balance: 0,// 余额
 							cny_price: 0, //人民币
@@ -133,30 +115,39 @@
 							mask: true
 						})
 						this.$api.submitWalletInfo({
-							"chain": this.chain,
-							"symbol": this.symbol,
-							"network": "mainnet",
-							"device_id": this.deviceId,
-							"wallet_uuid": uuid,
-							"wallet_name": this.walletName,
-							"address": this.address,
-							"contract_addr": "",
+							chain: chain,
+							symbol: symbol,
+							network: "mainnet",
+							device_id: this.deviceId,
+							wallet_uuid: uuid,
+							wallet_name: this.walletName,
+							address: this.address,
+							contract_addr: "",
 						}).then(res => {
 							console.log(res)
-							walletData.hasSubmit = true
+							currentWalletData.hasSubmit = true
 							this.$api.getAddressBalance({
-								"chain": this.chain,
-								"symbol": this.symbol,
-								"network": "mainnet",
-								"address": this.address,
-								"contract_addr": "",
+								chain: chain,
+								symbol: symbol,
+								network: "mainnet",
+								address: this.address,
+								contract_addr: "",
 							}).then(res => {
 								uni.hideLoading()
-								walletData.balance = res.result.balance
-								walletData.cny_price = res.result.cny_price
-								walletData.usdt_price = res.result.usdt_price
-								ethData[0].list.push(walletData)
-								uni.setStorageSync('walletData', [].concat(otherData).concat(ethData))
+								currentWalletData.balance = res.result.balance
+								currentWalletData.cny_price = res.result.cny_price
+								currentWalletData.usdt_price = res.result.usdt_price
+								currentWallet[0].list.push(currentWalletData)
+								const currentWalletIndex = allWalletData.findIndex(item=> item.type === this.type);
+								const newAllWalletData = currentWalletIndex !== -1? allWalletData.map(item=> {
+									if(item.type === currentWallet[0].type ){
+										return currentWallet[0]
+									}else{
+										return item
+									}
+								}): [].concat(allWalletData).concat(currentWallet)
+								uni.setStorageSync('currentWallet', currentWalletData)
+								uni.setStorageSync('walletData', newAllWalletData)
 								uni.reLaunch({
 									url: '/pages/home/home'
 								})

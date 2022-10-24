@@ -11,31 +11,10 @@
 			<image src="../../static/image/arrow-right.png" mode="" class="arrow-img"></image>
 		</view>
 		<view class="ft32 c_9397AF mlr40 ">单网络钱包</view>
-		<view hover-class="none" url="./createWallet" @tap="go" class="flex-between alcenter h80 item mt40 mb40 mlr40">
+		<view hover-class="none" url="./createWallet" @tap="go(item)" class="flex-between alcenter h80 item mt40 mb40 mlr40" v-for="(item, index) in menus" :key="index">
 			<view class="flex alcenter">
-				<image src="../../static/image/BTC@2x.png" mode="" class="mr30"></image>
-				<view class="ft32">比特币</view>
-			</view>
-			<image src="../../static/image/arrow-right.png" mode="" class="arrow-img"></image>
-		</view>
-		<navigator hover-class="none" url="./createWallet?name=以太坊" class="flex-between alcenter h80 item mt40 mb40 mlr40">
-			<view class="flex alcenter">
-				<image src="../../static/image/ETH@2x.png" mode="" class="mr30"></image>
-				<view class="ft32">以太坊</view>
-			</view>
-			<image src="../../static/image/arrow-right.png" mode="" class="arrow-img"></image>
-		</navigator>
-		<view hover-class="none" url="./createWallet" @tap="go" class="flex-between alcenter h80 item mt40 mb40 mlr40">
-			<view class="flex alcenter">
-				<image src="../../static/image/huobi@2x.png" mode="" class="mr30"></image>
-				<view class="ft32">火币生态链</view>
-			</view>
-			<image src="../../static/image/arrow-right.png" mode="" class="arrow-img"></image>
-		</view>
-		<view class="flex-between alcenter h80 item mt40 mb40 mlr40" @tap="go">
-			<view class="flex alcenter">
-				<image src="../../static/image/bian.png" mode="" class="mr30"></image>
-				<view class="ft32">币安智能链</view>
+				<image :src="item.activeImg" mode="" class="mr30"></image>
+				<view class="ft32">{{item.name}}</view>
 			</view>
 			<image src="../../static/image/arrow-right.png" mode="" class="arrow-img"></image>
 		</view>
@@ -43,10 +22,12 @@
 </template>
 
 <script>
+	import { CRYPTOCURRENCY_MENU } from '@/common/constants';
 	export default {
 		data() {
 			return {
-				deviceId: ''
+				menus: CRYPTOCURRENCY_MENU,
+				deviceId: '',
 			};
 		},
 		onLoad() {
@@ -63,8 +44,13 @@
 			// #endif
 		},
 		methods: {
-			go() {
-				this.$alert('暂不支持')
+			go(walletInfo) {
+				if(!walletInfo.support) {
+					return this.$alert('暂不支持')
+				}
+				uni.navigateTo({
+					url: `/pages/my/createWallet?type=${walletInfo.type}`
+				})
 			}
 		}
 	}
