@@ -113,14 +113,14 @@ export default {
     });
     // #endif
   },
-  mounted() {
+  onShow() {
     this.getExchanges();
     clearInterval(this.timer);
     this.timer = setInterval(() => {
       this.getMarketPrice(this.tabs[this.activeTab].id);
     }, 1500);
   },
-  beforeDestroy() {
+  onHide() {
     clearInterval(this.timer);
   },
   methods: {
