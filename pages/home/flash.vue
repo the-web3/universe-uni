@@ -115,6 +115,7 @@
 </template>
 
 <script>
+	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -160,7 +161,7 @@
 			handleOpen() {
 				this.$refs.popup.open()
 				if(this.menuIndex == 1) {
-					let walletData = uni.getStorageSync('walletData')
+					let walletData = getAllWalletData()
 					this.currentMenuData = walletData.find(item => {
 						return item.type == 'ETH'
 					}).list
@@ -174,7 +175,7 @@
 			changeMenu(index) {
 				this.menuIndex = index
 				if(this.menuIndex == 1) {
-					let walletData = uni.getStorageSync('walletData')
+					let walletData = getAllWalletData()
 					this.currentMenuData = walletData.find(item => {
 						return item.type == 'ETH'
 					}).list

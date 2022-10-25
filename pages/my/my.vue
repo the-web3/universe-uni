@@ -54,6 +54,7 @@
 </template>
 
 <script>
+	import { hasWallet } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -61,7 +62,7 @@
 			};
 		},
 		onShow() {
-			this.hasWallet = uni.getStorageSync('walletData').length > 0
+			this.hasWallet = hasWallet()
 		},
 		methods: {
 			goPath(url) {

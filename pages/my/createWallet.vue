@@ -30,7 +30,8 @@
 				walletName: '',
 				password: '',
 				confirmPassword: '',
-				checked: false
+				checked: false,
+				type: ''
 			};
 		},
 		computed: {
@@ -39,9 +40,10 @@
 			}
 		},
 		onLoad(options) {
-			if(options.name) {
+			if(options.type) {
+				this.type = options.type;
 				uni.setNavigationBarTitle({
-					title: `创建${options.name}钱包`
+					title: `创建${options.type}钱包`
 				})
 			}
 		},
@@ -52,7 +54,7 @@
 			handleSave() {
 				if(!this.isActive) return 
 				uni.navigateTo({
-					url: `/pages/home/backupWord?walletName=${this.walletName}&password=${this.password}`
+					url: `/pages/home/backupWord?type=${this.type}&walletName=${this.walletName}&password=${this.password}`
 				})
 				
 			}

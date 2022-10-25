@@ -27,7 +27,8 @@
 				walletName: '',
 				password: '',
 				words: [],
-				stepIndex: 0
+				stepIndex: 0,
+				type: '',
 			};
 		},
 		async onLoad(options) {
@@ -35,6 +36,7 @@
 			this.password = options.password
 			let words = await base.GenerateMnemonic(12, "english")
 			this.words = words.split(' ')
+			this.type = options.type
 		},
 		methods: {
 			handlePrev() {
@@ -44,8 +46,9 @@
 				this.stepIndex += 1
 				if(this.stepIndex == this.words.length) {
 					let words = this.words.join(' ')
+					console.log(words)
 					uni.navigateTo({
-						url: `./validateWord?walletName=${this.walletName}&password=${this.password}&words=${words}`
+						url: `./validateWord?type=${this.type}&walletName=${this.walletName}&password=${this.password}&words=${words}`
 					})
 					this.stepIndex = 0
 				}

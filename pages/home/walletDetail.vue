@@ -64,6 +64,7 @@
 </template>
 
 <script>
+	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -75,6 +76,9 @@
 			};
 		},
 		onLoad() {
+			this.currentWallet = uni.getStorageSync('currentWallet')
+		},
+		onShow(){
 			this.currentWallet = uni.getStorageSync('currentWallet')
 		},
 		methods: {
@@ -98,28 +102,26 @@
 								device_id: this.currentWallet.device_id,
 								wallet_uuid: this.currentWallet.uuid
 							}).then(() => {
-								let allWalletData = uni.getStorageSync('walletData')
-								let otherData = allWalletData.filter(item => {
-									return item.type != 'ETH'
+								let allWalletData = getAllWalletData()
+								let walletIndex = 0;
+								let walletType = Object.keys(allWalletData)[0];
+								const currentTypeWallet = allWalletData.filter( item =>{
+									const index = item.list.findIndex( cur =>{
+										return cur.uuid == this.currentWallet.uuid
+									})
+									if(index !== -1){
+										walletIndex = index
+										walletType = item.type
+										return true
+									}
+									return false
 								})
-								let ethWalletData = allWalletData.filter(item => {
-									return item.type == 'ETH'
-								})[0].list
-								ethWalletData = ethWalletData.filter(item => {
-									return item.address != this.currentWallet.address
-								})
-								if(ethWalletData.length == 0) {
-									uni.clearStorageSync('currentWallet')
-									uni.setStorageSync('walletData', [].concat(otherData).concat([]))
-								}else{
-									uni.setStorageSync('currentWallet', ethWalletData[0])
-									uni.setStorageSync('walletData', [].concat(otherData).concat([
-										{
-											type: 'ETH',
-											list: ethWalletData
-										}
-									]))
-								}
+								currentTypeWallet[0].list.splice(walletIndex, 1)
+								allWalletData[walletType] = currentTypeWallet[0];
+								//TODO: 删除钱包之后取列表里面的list有值的
+								const currentWalletList = allWalletData.filter(item=>item.list.length>0);
+								uni.setStorageSync('currentWallet', currentWalletList.length>0?currentWalletList[0].list[0]: undefined)
+								uni.setStorageSync('walletData', allWalletData)
 								uni.navigateBack()
 							})
 				        } else if (res.cancel) {
@@ -137,7 +139,7 @@
 				this.$refs.editPopup.close()
 			},
 			handeleSubmitEdit() {
-				let allWalletData = uni.getStorageSync('walletData')
+				let allWalletData = getAllWalletData()
 				let otherData = allWalletData.filter(item => {
 					return item.type != 'ETH'
 				})
