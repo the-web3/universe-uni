@@ -88,7 +88,7 @@
 					if(this.fillWords.toString() == this.words.toString()) {
 						let uuid = Math.random().toString(36).substr(-10);
 						const allWalletData = getAllWalletData();
-						const currentWallet = [...INIT_WALLET_DATA,...allWalletData].filter(item => {
+						const currentWallet = allWalletData.filter(item => {
 							return item.type == this.type
 						});
 						const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
