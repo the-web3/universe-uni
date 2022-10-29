@@ -16,7 +16,7 @@
 	import * as base from '@/common/word/base';
 	import * as address from '@/common/word/address';
 	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { postWalletInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -87,12 +87,8 @@
 				if(flag) {
 					if(this.fillWords.toString() == this.words.toString()) {
 						let uuid = Math.random().toString(36).substr(-10);
-						const allWalletData = getAllWalletData();
-						const currentWallet = allWalletData.filter(item => {
-							return item.type == this.type
-						});
 						const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
-						let currentWalletData = {
+						postWalletInfo(this.type,{
 							device_id: this.deviceId, // 设备ID
 							uuid,// 钱包ID
 							chain,// 链名称
@@ -103,59 +99,7 @@
 							mnemonic_code: this.mnemonicCode,// 助记词编码
 							password: this.password,// 密码
 							icon: activeImg,// 图标
-							contract_address: '',// 合约地址
-							balance: 0,// 余额
-							cny_price: 0, //人民币
-							usdt_price: 0,// 折合成 USDT
-							del: 0, //是否删除 0：正常；1:删除
-							hasSubmit: false
-						}
-						uni.showLoading({
-							title: '提交中',
-							mask: true
-						})
-						this.$api.submitWalletInfo({
-							chain: chain,
-							symbol: symbol,
-							network: "mainnet",
-							device_id: this.deviceId,
-							wallet_uuid: uuid,
-							wallet_name: this.walletName,
-							address: this.address,
-							contract_addr: "",
-						}).then(res => {
-							console.log(res)
-							currentWalletData.hasSubmit = true
-							this.$api.getAddressBalance({
-								chain: chain,
-								symbol: symbol,
-								network: "mainnet",
-								address: this.address,
-								contract_addr: "",
-							}).then(res => {
-								uni.hideLoading()
-								currentWalletData.balance = res.result.balance
-								currentWalletData.cny_price = res.result.cny_price
-								currentWalletData.usdt_price = res.result.usdt_price
-								currentWallet[0].list.push(currentWalletData)
-								const currentWalletIndex = allWalletData.findIndex(item=> item.type === this.type);
-								const newAllWalletData = currentWalletIndex !== -1? allWalletData.map(item=> {
-									if(item.type === currentWallet[0].type ){
-										return currentWallet[0]
-									}else{
-										return item
-									}
-								}): [].concat(allWalletData).concat(currentWallet)
-								uni.setStorageSync('currentWallet', currentWalletData)
-								uni.setStorageSync('walletData', newAllWalletData)
-								uni.reLaunch({
-									url: '/pages/home/home'
-								})
-							}).catch(() => {
-								uni.hideLoading()
-							})
-						}).catch(() => {
-							uni.hideLoading()
+							contract_addr: '',// 合约地址
 						})
 					}else{
 						uni.showToast({

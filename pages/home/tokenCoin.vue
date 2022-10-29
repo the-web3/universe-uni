@@ -38,6 +38,7 @@
 
 <script>
 	import config from '@/config'
+	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
 			return {
@@ -169,12 +170,13 @@
 				})
 			},
 			handleAdd(item) {
-				let allWalletData = uni.getStorageSync('walletData')
-				let otherData = []
-				otherData = allWalletData.filter(item => {
-					return item.type != 'ETH'
-				})
-				otherData ? otherData : []
+				// let allWalletData = getAllWalletData()
+				// let otherData = []
+				// otherData = allWalletData.filter(item => {
+				// 	return item.type != 'ARBI'
+				// })
+				// otherData ? otherData : []
+				// this.currentWallet = uni.getStorageSync('currentWallet')
 				let walletData = {
 					device_id: this.deviceId, // 设备ID
 					uuid: this.currentMainCoin.uuid,// 钱包ID
@@ -186,7 +188,7 @@
 					mnemonic_code: this.currentMainCoin.mnemonic_code,// 助记词编码
 					password: this.currentMainCoin.password,// 密码
 					icon: `${config.imgUrl + item.icon}`,// 图标
-					contract_address: item.contract_addr,// 合约地址
+					contract_address: item.contract_addr,// 合约地址(eth 空)
 					balance: 0,// 余额
 					cny_price: 0, //人民币
 					usdt_price: 0,// 折合成 USDT
@@ -198,17 +200,18 @@
 					mask: true
 				})
 				this.$api.submitWalletInfo({
-					"chain": this.chain,
-					"symbol": this.symbol,
+					"chain": this.currentMainCoin.chain,
+					"symbol": item.token_symbol,
 					"network": "mainnet",
-					"device_id": this.deviceId,
-					"wallet_uuid": uuid,
-					"wallet_name": this.walletName,
-					"address": this.address,
-					"contract_addr": "",
+					"device_id": this.currentMainCoin.device_id,
+					"wallet_uuid": this.currentMainCoin.uuid,
+					"wallet_name": this.currentMainCoin.wallt_name,
+					"address": this.currentMainCoin.address,
+					"contract_addr": item.contract_addr,
 				}).then(res => {
 					console.log('submit ' + JSON.stringify(res))
 					walletData.hasSubmit = true
+					//getusdt的banlance
 					this.$api.getAddressBalance({
 						"chain": this.currentMainCoin.chain,
 						"symbol": item.token_symbol,

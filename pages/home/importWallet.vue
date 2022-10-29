@@ -38,7 +38,7 @@
 	import { allTipWords } from '@/common/word'
 	const INIT_TITLE = '导入身份钱包'
 	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { postWalletInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -64,6 +64,7 @@
 			}
 		},
 		onLoad(options) {
+			// console.log(lodash)
 			if(options.type) {
 				this.type = options.type;
 				this.title =  `导入${options.type}钱包`
@@ -129,7 +130,6 @@
 				//助记词编码
 				this.mnemonicCode = await base.MnemonicToEntropy(this.words, "english")
 				
-				
 				//助记词生成地址
 				var seed_sync = await base.MnemonicToSeedSync(this.words, "")
 				var addrs = await address.CreateEthAddressBySeed(seed_sync, 0)
@@ -137,15 +137,8 @@
 				this.privateKey = addrs.privateKey
 				
 				let uuid = Math.random().toString(36).substr(-10)
-				const allWalletData = getAllWalletData();
-				const currentWallet = allWalletData ? allWalletData.filter(item => {
-					return item.type == this.type
-				}): [{
-					type: this.type,
-					list: []
-				}];
 				const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
-				let currentWalletData = {
+				postWalletInfo(this.type,{
 					device_id: this.deviceId, // 设备ID
 					uuid,// 钱包ID
 					chain,// 链名称
@@ -156,58 +149,7 @@
 					mnemonic_code: this.mnemonicCode,// 助记词编码
 					password: this.password,// 密码
 					icon: activeImg,// 图标
-					contract_address: '',// 合约地址
-					balance: 0,// 余额
-					cny_price: 0, //人民币
-					usdt_price: 0,// 折合成 USDT
-					del: 0, //是否删除 0：正常；1:删除
-					hasSubmit: false
-				}
-				uni.showLoading({
-					title: '导入中',
-					mask: true
-				})
-				this.$api.submitWalletInfo({
-					chain: chain,
-					symbol: symbol,
-					network: "mainnet",
-					device_id: this.deviceId,
-					wallet_uuid: uuid,
-					wallet_name: this.walletName,
-					address: this.address,
-					contract_addr: "",
-				}).then(res => {
-					currentWalletData.hasSubmit = true
-					this.$api.getAddressBalance({
-						chain: chain,
-						symbol: symbol,
-						network: "mainnet",
-						address: this.address,
-						contract_addr: "",
-					}).then(res => {
-						uni.hideLoading()
-						currentWalletData.balance = res.result.balance
-						currentWalletData.cny_price = res.result.cny_price
-						currentWalletData.usdt_price = res.result.usdt_price
-						currentWallet[0].list.push(currentWalletData)
-						const currentWalletIndex = allWalletData.findIndex(item=> item.type === this.type);
-						const newAllWalletData = currentWalletIndex !== -1? allWalletData.map(item=> {
-							if(item.type === currentWallet[0].type ){
-								return currentWallet[0]
-							}else{
-								return item
-							}
-						}): [].concat(allWalletData).concat(currentWallet)
-						uni.setStorageSync('currentWallet', currentWalletData)
-						uni.setStorageSync('walletData', newAllWalletData)
-						uni.reLaunch({
-							url: '/pages/home/home'
-						})
-					}).catch(() => {
-						uni.hideLoading()
-					})
-				}).catch(() => {
-					uni.hideLoading()
+					contract_addr: '',// 合约地址
 				})
 			}
 		}
