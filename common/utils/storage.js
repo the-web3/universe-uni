@@ -1,7 +1,11 @@
 import { INIT_WALLET_DATA } from '@/common/constants';
 
 export const getAllWalletData = () => {
-    return uni.getStorageSync('walletData') || INIT_WALLET_DATA
+    const allWalletData = uni.getStorageSync('walletData');
+    if(allWalletData){
+        return INIT_WALLET_DATA.map(item => allWalletData.filter( localitem => localitem.type === item.type)[0] || item)
+    }
+    return INIT_WALLET_DATA
 }
 
 export const hasWallet = () => {
