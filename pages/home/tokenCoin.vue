@@ -29,7 +29,7 @@
 						<view class="c_9397AF">{{item.contract_addr}}</view>
 					</view>
 				</view>
-				<image v-if="allContractAddress.includes(item.contract_addr)" src="../../static/image/jinzhi@2x.png" mode="" class="arrow" @tap="handleDelete(item)"></image>
+				<image v-if="allContractAddress.includes(item.contract_addr)" src="../../static/image/jinzhi@2x.png" mode="" class="arrow" @tap="handleDelete(item.contract_addr)"></image>
 				<image v-else src="../../static/image/add.png" mode="" class="arrow" @tap="handleAdd(item)"></image>
 			</view>
 		</scroll-view>
@@ -38,6 +38,7 @@
 
 <script>
 	import config from '@/config'
+	import { postWalletInfo, add_remove_token_list } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -51,8 +52,8 @@
 				list: [],
 				scrollHeight: 0,
 				currentMainCoin: {}, //当前主链币
-				currentWalletData: [],
-				allContractAddress: []
+				allContractAddress: [],
+				type: ''
 			};
 		},
 		onNavigationBarButtonTap() {
@@ -77,7 +78,8 @@
 				this.loadData()
 			}
 		},
-		onLoad() {
+		onLoad(options) {
+			this.type = options.type
 			// 获取设备信息
 			// #ifdef APP-PLUS
 			plus.device.getInfo({
@@ -94,17 +96,7 @@
 			this.scrollHeight = uni.getSystemInfoSync().windowHeight
 			this.loadHotList()
 			this.currentMainCoin = uni.getStorageSync('currentWallet')
-			let walletData = uni.getStorageSync('walletData')
-			this.currentWalletData = walletData.filter(item => {
-				return item.type == 'ETH'
-			})
-			let allContractData = this.currentWalletData[0].list.filter(item => {
-				return item.contract_address.length > 0 && item.wallt_name == this.currentMainCoin.wallt_name
-			})
-			this.allContractAddress = allContractData.map(item => {
-				return item.contract_address
-			})
-			console.log(this.currentWalletData, this.allContractAddress)
+			this.setAllContractAddress()
 		},
 		methods: {
 			//热门代币
@@ -141,99 +133,57 @@
 					
 				}
 			},
+			setAllContractAddress(){
+				let allContractData = this.currentMainCoin.token_list.filter(item => {
+					return item.contract_addr.length > 0 && item.wallet_name == this.currentMainCoin.wallet_name
+				})
+				this.allContractAddress = allContractData.map(item => {
+					return item.contract_addr
+				})
+			},
 			handleDelete({contract_addr}) {
 				this.$api.delete_wallet_token({
 					device_id: this.deviceId, // 设备ID
 					wallet_uuid: this.currentMainCoin.uuid,
-					contract_addr: contract_addr
+					contract_addr
 				}).then(res => {
-					console.log('handleDelete ' + JSON.stringify(res))
-					let allWalletData = uni.getStorageSync('walletData')
-					let otherData = []
-					let walletIndex = 0
-					otherData = allWalletData.filter(item => {
-						return item.type != 'ETH'
+					this.currentMainCoin.token_list = this.currentMainCoin.token_list.filter(item => {
+						return item.contract_addr !== contract_addr
 					})
-					otherData ? otherData : [],
-					walletIndex = this.currentWalletData[0].list.findIndex(item => {
-						return item.contract_address == contract_addr && item.wallt_name == this.currentMainCoin.wallt_name
-					})
-					this.currentWalletData[0].list.splice(walletIndex, 1)
-					uni.setStorageSync('walletData', [].concat(otherData).concat(this.currentWalletData))
-					let allContractData = this.currentWalletData[0].list.filter(item => {
-						return item.contract_address.length > 0 && item.wallt_name == this.currentMainCoin.wallt_name
-					})
-					this.allContractAddress = allContractData.map(item => {
-						return item.contract_address
-					})
+					add_remove_token_list(this.currentMainCoin)
+					this.setAllContractAddress()
 				})
 			},
 			handleAdd(item) {
-				let allWalletData = uni.getStorageSync('walletData')
-				let otherData = []
-				otherData = allWalletData.filter(item => {
-					return item.type != 'ETH'
-				})
-				otherData ? otherData : []
-				let walletData = {
+				const { uuid, chain, wallet_name, address, private_key, mnemonic_code, password } = this.currentMainCoin
+				postWalletInfo(this.type, {
 					device_id: this.deviceId, // 设备ID
-					uuid: this.currentMainCoin.uuid,// 钱包ID
-					chain: this.currentMainCoin.chain,// 链名称
+					uuid,// 钱包ID
+					chain,// 链名称
 					symbol: item.token_symbol,// 币种名称
-					wallt_name: this.currentMainCoin.wallt_name,// 钱包名称
-					address: this.currentMainCoin.address,// 地址
-					private_key: this.currentMainCoin.private_key,// 私钥
-					mnemonic_code: this.currentMainCoin.mnemonic_code,// 助记词编码
-					password: this.currentMainCoin.password,// 密码
-					icon: `${config.imgUrl + item.icon}`,// 图标
-					contract_address: item.contract_addr,// 合约地址
-					balance: 0,// 余额
-					cny_price: 0, //人民币
-					usdt_price: 0,// 折合成 USDT
-					del: 0, //是否删除 0：正常；1:删除
-					hasSubmit: false
-				}
-				uni.showLoading({
-					title: '添加中',
-					mask: true
-				})
-				this.$api.submitWalletInfo({
-					"chain": this.chain,
-					"symbol": this.symbol,
-					"network": "mainnet",
-					"device_id": this.deviceId,
-					"wallet_uuid": uuid,
-					"wallet_name": this.walletName,
-					"address": this.address,
-					"contract_addr": "",
-				}).then(res => {
-					console.log('submit ' + JSON.stringify(res))
-					walletData.hasSubmit = true
-					this.$api.getAddressBalance({
-						"chain": this.currentMainCoin.chain,
-						"symbol": item.token_symbol,
-						"network": "mainnet",
-						"address": this.currentMainCoin.address,
-						"contract_addr": item.contract_addr,
-					}).then(res => {
-						console.log('balance ', JSON.stringify(res))
-						uni.hideLoading()
-						walletData.balance = res.data.balance
-						walletData.cny_price = res.data.cny_price
-						walletData.usdt_price = res.data.usdt_price
-						this.currentWalletData[0].list.push(walletData)
-						uni.setStorageSync('walletData', [].concat(otherData).concat(this.currentWalletData))
-						let allContractData = this.currentWalletData[0].list.filter(item => {
-							return item.contract_address.length > 0 && item.wallt_name == this.currentMainCoin.wallt_name
+					wallet_name,// 钱包名称
+					address,// 地址
+					private_key,// 私钥
+					mnemonic_code,// 助记词编码
+					password,// 密码
+					icon: `${item.icon}`,// 图标
+					contract_addr: item.contract_addr,// 合约地址(eth 空)
+				}, { 
+					in_token_list: true,
+					callback: ()=>{
+						this.$api.getWalletBalance({
+							device_id: this.deviceId,
+							wallet_uuid: this.currentMainCoin.uuid,
+							chain: this.currentMainCoin.chain
+						}).then(res => {
+							let { token_list, total_asset_cny, total_asset_usd } = res.result;
+							this.currentMainCoin.token_list = token_list;
+							this.currentMainCoin.total_asset_cny = total_asset_cny;
+							this.currentMainCoin.total_asset_usd = total_asset_usd;
+							add_remove_token_list(this.currentMainCoin)
+							this.setAllContractAddress()
 						})
-						this.allContractAddress = allContractData.map(item => {
-							return item.contract_address
-						})
-					}).catch(() => {
-						uni.hideLoading()
-					})
-				}).catch(() => {
-					uni.hideLoading()
+					}
 				})
 			}
 		}

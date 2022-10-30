@@ -49,3 +49,42 @@ export const INIT_WALLET_DATA = Object.keys(CRYPTOCURRENCY_TYPE).map(item =>{
         list: []
     }
 })
+export const INIT_WALLET = {
+    device_id: '', // 设备ID
+    uuid: '',// 钱包ID
+    chain: '',// 链名称
+    symbol: '',// 币种名称
+    wallet_name: '',// 钱包名称
+    address: '',// 地址
+    private_key: '',// 私钥
+    mnemonic_code: '',// 助记词编码
+    password: '',// 密码
+    icon: '',// 图标
+    // contract_address: '',// 合约地址
+    contract_addr: '',// 合约地址
+    balance: 0,// 余额
+    cny_price: 0, //人民币
+    usdt_price: 0,// 折合成 USDT
+    del: 0, //是否删除 0：正常；1:删除
+    hasSubmit: false, //是否提交
+    total_asset_usd: 0,  //资产usd
+    total_asset_cny: 0, //资产人民币
+    type: '',
+    token_list: []
+}
+
+export const INIT_TOKEN ={
+    address: "",
+    balance: "0",
+    chain: "",
+    cny_price: "0",
+    contract_addr: "",
+    device_id: "",
+    icon: "",
+    // id: 48,
+    network: "",
+    symbol: "",
+    usdt_price: "0",
+    wallet_name: "",
+    wallet_uuid: "",
+}

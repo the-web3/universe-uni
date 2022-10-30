@@ -117,7 +117,7 @@
 						uuid: uuid,// 钱包ID
 						chain_name: 'Ethereum',// 链名称
 						asset_name: 'ETH',// 币种名称
-						wallt_name: this.walletName,// 钱包名称
+						wallet_name: this.walletName,// 钱包名称
 						address: this.address,// 地址
 						private_key: this.privateKey,// 私钥
 						mnemonic_code: '',// 助记词编码

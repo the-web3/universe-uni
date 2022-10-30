@@ -31,7 +31,7 @@
 			<view class="status-bar"></view>
 			<view class="top-fixed flex-between alcenter h100 plr40">
 				<view class="flex-between alcenter left-container plr20" @tap="handleOpen">
-					<view>{{currentWallet.wallt_name}}</view>
+					<view>{{currentWallet.wallet_name}}</view>
 					<image src="../../static/image/triangle.png" mode=""></image>
 				</view>
 				<view class="flex alcenter">
@@ -52,7 +52,7 @@
 						<image src="../../static/image/arrow-right.png" mode=""></image>
 					</navigator>
 				</view>
-				<view class="money-num ft64 pl58" v-if="showMoney">{{walletDetail.total_asset }}</view>
+				<view class="money-num ft64 pl58" v-if="showMoney">{{currentWallet.total_asset_usd }}</view>
 				<view class="money-num ft64 pl58" v-else>***</view>
 				<view class="items flex">
 					<navigator hover-class="none" :url="`./transfer?address=${currentWallet.address}&chainName=${currentWallet.chain_name}`" class="item">
@@ -71,11 +71,11 @@
 			</view>
 			<view class="property-title flex-between alcenter h80 mt80 plr40">
 				<view class="ft32">资产列表</view>
-				<navigator hover-class="none" url="./tokenCoin">
+				<navigator hover-class="none" :url="`./tokenCoin?type=${currentWallet.type}`">
 					<image src="../../static/image/add@2x.png" mode=""></image>
 				</navigator>
 			</view>
-			<view class="property-item flex-between alcenter h80 mt40 mb40 plr40" v-for="(item, index) in walletDetail.coin_asset" :key="index" @click="goDetail(item)">
+			<view class="property-item flex-between alcenter h80 mt40 mb40 plr40" v-for="(item, index) in currentWallet.token_list" :key="index" @click="goDetail(item)">
 				<view class="flex alcenter">
 					<image :src="item.icon" mode="" class="mr40"></image>
 					<view>
@@ -105,6 +105,7 @@
 	import config from '@/config'
 	import walletList from '@/components/wallet-list/index.vue'
 	import { getAllWalletData, hasWallet } from '@/common/utils/storage.js';
+	import { add_remove_token_list } from '@/common/utils';
 	export default {
 		components: {
 			walletList,
@@ -118,19 +119,16 @@
 				deviceId: 'c3c0268fa44293f2',
 				currentWallet: {},
 				propertyList: [],
-				walletDetail: {
-					total_asset: 0
-				},
-				currentMenuData: []
+				currentMenuData: [],
+				walletData: []
 			};
 		},
 		onShow() {
-			let walletData = getAllWalletData()	
+			this.walletData = getAllWalletData()	
 			this.hasWallet = hasWallet()
 			if(!this.hasWallet) return 	
 			let unSubmitWallet = []
-			for(let item of walletData) {
-				
+			for(let item of this.walletData) {
 				let unData = item.list.filter(item => {
 					return !item.hasSubmit
 				})
@@ -146,51 +144,28 @@
 					"wallet_name": item.wallet_name,
 					"address": item.address,
 					"contract_addr": item.contract_addr,
+					"":[]
 				}
 			})
 			if(unSubmitWallet.length > 0) {
 				this.$api.batch_submit_wallet(unSubmitWallet).then(() => {
-					
+					// TODO: logic
 				})
 			}
 			if(uni.getStorageSync('currentWallet')) {
 				this.currentWallet = uni.getStorageSync('currentWallet')
 			}else{
-				this.currentWallet = walletData.find(item => {
-					return item.type == 'ETH'
+				this.currentWallet = this.walletData.find(item => {
+					return item.list && item.list.length !== 0
 				}).list[0]
 				uni.setStorageSync('currentWallet', this.currentWallet)				
 			}
 			uni.getNetworkType({
 				success: res => {
-					console.log(res.networkType)
+					console.log('getNetworkType', res.networkType)
 					if (res.networkType == 'none') {
+						// TODO: logic
 						this.isConnected = false
-						if(this.hasWallet) {
-							let nowWalletData = walletData.find(item => {
-								return item.type == 'ETH'
-							}).list.filter(item => {
-								return item.wallt_name == this.currentWallet.wallt_name
-							})
-							let total_asset = nowWalletData.reduce((prev, next) => {
-								return prev + next.usdt_price
-							}, 0)
-							let coin_asset = nowWalletData.map(item => {
-								return {
-									balance: item.balance,
-									chain: item.chain,
-									cny_price: item.cny_price || 0,
-									icon: item.icon,
-									id: 8,
-									symbol: item.symbol,
-									usdt_price: item.usdt_price,
-								}
-							})
-							this.walletDetail = {
-								total_asset,
-								coin_asset
-							}			
-						}
 					} else {
 						this.isConnected = true
 						if(this.hasWallet) {
@@ -200,38 +175,11 @@
 				}
 			});
 			uni.onNetworkStatusChange(res => {
-				console.log(res)
+				console.log('onNetworkStatusChange', res)
 				this.isConnected = res.isConnected
 				if(this.isConnected) {
 					if(this.hasWallet) {
 						this.loadWalletBalance()				
-					}
-				}else{
-					if(this.hasWallet) {
-						let walletData = getAllWalletData()
-						let nowWalletData = walletData.find(item => {
-							return item.type == 'ETH'
-						}).list.filter(item => {
-							return item.wallt_name == this.currentWallet.wallt_name
-						})
-						let total_asset = nowWalletData.reduce((prev, next) => {
-							return prev + next.usdt_price
-						}, 0)
-						let coin_asset = nowWalletData.map(item => {
-							return {
-								balance: item.balance,
-								chain: item.chain,
-								cny_price: item.cny_price || 0,
-								icon: item.icon,
-								id: 8,
-								symbol: item.symbol,
-								usdt_price: item.usdt_price,
-							}
-						})
-						this.walletDetail = {
-							total_asset,
-							coin_asset
-						}			
 					}
 				}
 			});
@@ -242,19 +190,7 @@
 				plus.device.getInfo({
 					success: (e) =>{
 						this.deviceId = e.uuid
-						this.$api.getWalletBalance({
-							device_id: this.deviceId,
-							wallet_uuid: this.currentWallet.uuid,
-							chain: this.currentWallet.chain
-						}).then(res => {
-							this.walletDetail = res.result
-							this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
-								return {
-									...item,
-									icon: config.imgUrl + item.icon
-								}
-							})
-						})
+						this.getWalletBalance()
 					},
 					fail: (e) =>{
 						console.log('getDeviceInfo failed: '+JSON.stringify(e));
@@ -262,20 +198,28 @@
 				});
 				// #endif
 				// #ifdef H5
+				this.getWalletBalance()
+				// #endif
+			},
+			getWalletBalance(){
 				this.$api.getWalletBalance({
 					device_id: this.deviceId,
 					wallet_uuid: this.currentWallet.uuid,
 					chain: this.currentWallet.chain
 				}).then(res => {
-					this.walletDetail = res.result
-					this.walletDetail.coin_asset = this.walletDetail.coin_asset.map(item => {
+					let { token_list, total_asset_cny, total_asset_usd } = res.result
+					token_list = token_list.map(item => {
 						return {
 							...item,
 							icon: config.imgUrl + item.icon
 						}
 					})
+					this.currentWallet.token_list = token_list;
+					this.currentWallet.total_asset_cny = total_asset_cny;
+					this.currentWallet.total_asset_usd = total_asset_usd;
+					add_remove_token_list(this.currentWallet)
+					
 				})
-				// #endif
 			},
 			goPath() {
 				this.$alert('暂不支持')
