@@ -75,7 +75,7 @@
 			};
 		},
 		onLoad(options) {
-			this.walletData = JSON.parse(options.walletData)
+			this.walletData = JSON.parse(options.walletData || "{}")
 			this.loadRecord()
 			this.loadBalance()
 			

@@ -143,7 +143,7 @@
 					uuid,// 钱包ID
 					chain,// 链名称
 					symbol,// 币种名称
-					wallt_name: this.walletName,// 钱包名称
+					wallet_name: this.walletName,// 钱包名称
 					address: this.address,// 地址
 					private_key: this.privateKey,// 私钥
 					mnemonic_code: this.mnemonicCode,// 助记词编码

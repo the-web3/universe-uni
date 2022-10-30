@@ -4,7 +4,7 @@
 			<image :src="currentWallet.icon" mode="" class="coin-img mr30"></image>
 			<view>
 				<view class="flex alcenter">
-					<view class="ft28">{{currentWallet.wallt_name}}</view>
+					<view class="ft28">{{currentWallet.wallet_name}}</view>
 					<image src="../../static/image/xiepinglun@2x.png" mode="" class="ml40" @tap="handleOpenEdit"></image>
 				</view>
 				<view class="flex alcenter">
@@ -132,7 +132,7 @@
 			},
 			handleOpenEdit() {
 				this.$refs.editPopup.open()
-				this.tempName = this.currentWallet.wallt_name
+				this.tempName = this.currentWallet.wallet_name
 			},
 			handleCloseEdit() {
 				this.walletName = ''
@@ -149,7 +149,7 @@
 				let walletIndex = ethWalletData.findIndex(item => {
 					return item.address == this.currentWallet.address
 				})
-				this.currentWallet.wallt_name = this.tempName
+				this.currentWallet.wallet_name = this.tempName
 				ethWalletData.splice(walletIndex, 1, this.currentWallet)
 				uni.setStorageSync('currentWallet', ethWalletData[walletIndex])
 				uni.setStorageSync('walletData', [].concat(otherData).concat([

@@ -97,7 +97,7 @@
 						<view class="add-wallet flex-center" @tap="handleAdd" v-if="currentMenuData.length == 0">添加钱包</view>
 						<view :class="[`wallet-${menuIndex}`, 'wallet-item flex-around flex-column c-white pl30 pr20']" v-for="(item, index) in currentMenuData" :key="index">
 							<view class="flex alcenter">
-								<view class="ft28">{{item.wallt_name}}</view>
+								<view class="ft28">{{item.wallet_name}}</view>
 								<view class="current ft22" v-if="item.address == currentWallet.address">当前</view>
 							</view>
 							<view class="flex-between alcenter">

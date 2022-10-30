@@ -54,7 +54,7 @@ export const INIT_WALLET = {
     uuid: '',// 钱包ID
     chain: '',// 链名称
     symbol: '',// 币种名称
-    wallt_name: '',// 钱包名称
+    wallet_name: '',// 钱包名称
     address: '',// 地址
     private_key: '',// 私钥
     mnemonic_code: '',// 助记词编码
@@ -71,4 +71,20 @@ export const INIT_WALLET = {
     total_asset_cny: 0, //资产人民币
     type: '',
     token_list: []
+}
+
+export const INIT_TOKEN ={
+    address: "",
+    balance: "0",
+    chain: "",
+    cny_price: "0",
+    contract_addr: "",
+    device_id: "",
+    icon: "",
+    // id: 48,
+    network: "",
+    symbol: "",
+    usdt_price: "0",
+    wallet_name: "",
+    wallet_uuid: "",
 }
