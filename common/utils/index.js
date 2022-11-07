@@ -83,3 +83,11 @@ export const add_remove_token_list = (currentWallet) =>{
     uni.setStorageSync('currentWallet', currentWallet)
     uni.setStorageSync('walletData', allWalletData)
 }
+// 提示框
+export const showToast = (str) => {
+	uni.showToast({
+	  icon: 'none',
+	  title: str,
+	  mask: true
+	})
+}

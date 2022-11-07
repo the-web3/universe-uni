@@ -104,7 +104,8 @@
 <script>
 	import config from '@/config'
 	import walletList from '@/components/wallet-list/index.vue'
-	import { getAllWalletData, hasWallet } from '@/common/utils/storage.js';
+	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { getWalletList } from '@/common/utils/sqliteFun.js';
 	import { add_remove_token_list } from '@/common/utils';
 	export default {
 		components: {
@@ -125,7 +126,7 @@
 		},
 		onShow() {
 			this.walletData = getAllWalletData()	
-			this.hasWallet = hasWallet()
+			this.hasWallet = getWalletList().length > 0
 			if(!this.hasWallet) return 	
 			let unSubmitWallet = []
 			for(let item of this.walletData) {
@@ -189,6 +190,7 @@
 				// #ifdef APP-PLUS
 				plus.device.getInfo({
 					success: (e) =>{
+						console.log(111111, e)
 						this.deviceId = e.uuid
 						this.getWalletBalance()
 					},
