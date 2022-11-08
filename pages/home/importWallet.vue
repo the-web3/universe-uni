@@ -37,8 +37,11 @@
 	import * as address from '@/common/word/address';
 	import { allTipWords } from '@/common/word'
 	const INIT_TITLE = '导入身份钱包'
+	import { rules } from '@/common/utils/validation.js';
+	import { showToast } from '@/common/utils';
 	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
 	import { postWalletInfo } from '@/common/utils';
+	import { getChainInfo } from '@/common/utils/sqliteFun.js';
 	export default {
 		data() {
 			return {
@@ -123,6 +126,10 @@
 			},
 			async handleSave() {
 				if(!this.isActive) return 
+				if(!rules.password.isVaild(this.password)){
+					showToast(rules.password.message)
+					return
+				}
 				let word_vld = await base.ValidateMnemonic(this.words, "english")
 				if(!word_vld) {
 					return this.$alert('助记词无效')
@@ -137,7 +144,7 @@
 				this.privateKey = addrs.privateKey
 				
 				let uuid = Math.random().toString(36).substr(-10)
-				const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
+				const { chain, symbol, active_logo } = getChainInfo(this.type)
 				postWalletInfo(this.type,{
 					device_id: this.deviceId, // 设备ID
 					uuid,// 钱包ID
@@ -148,8 +155,7 @@
 					private_key: this.privateKey,// 私钥
 					mnemonic_code: this.mnemonicCode,// 助记词编码
 					password: this.password,// 密码
-					icon: activeImg,// 图标
-					contract_addr: '',// 合约地址
+					icon: active_logo,// 图标
 				})
 			}
 		}

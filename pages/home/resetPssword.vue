@@ -15,6 +15,8 @@
 
 <script>
 	import * as base from '@/common/word/base';
+	import { rules } from '@/common/utils/validation.js';
+	import { showToast } from '@/common/utils';
 	import { getAllWalletData } from '@/common/utils/storage.js';
 	export default {
 		data() {
@@ -39,6 +41,10 @@
 			handleSave() {
 				if(this.word != this.words) {
 					return this.$alert('助记词无效')
+				}
+				if(!rules.password.isVaild(this.password)){
+					showToast(rules.password.message)
+					return
 				}
 				if(this.newPassword.length < 8) {
 					return this.$alert('密码不少于8位数')

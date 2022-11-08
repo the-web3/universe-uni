@@ -11,3 +11,16 @@ export const getWalletList = () => {
     })
 	return walletList
 }
+
+export const getChainInfo = (type) => {
+    let chainInfo = {};
+    DB.selectTableData('chain', 'name', type)
+	.then((res) => {
+		chainInfo = res[0] || {}
+		console.log('chain表数据',res)
+	})
+	.catch((error) => {
+		console.log('查询失败',error)
+	})
+	return chainInfo
+}
