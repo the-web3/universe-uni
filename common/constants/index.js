@@ -50,23 +50,28 @@ export const INIT_WALLET_DATA = Object.keys(CRYPTOCURRENCY_TYPE).map(item =>{
     }
 })
 export const INIT_WALLET = {
-    device_id: '', // 设备ID
-    uuid: '',// 钱包ID
-    // chain: '',// 链名称
-    // symbol: '',// 币种名称
-    wallet_name: '',// 钱包名称
-    // address: '',// 地址? 待确认
-    // private_key: '',// 私钥? 待确认
-    mnemonic_code: '',// 助记词编码
-    password: '',// 密码
-    balance: 0,// 余额
-    is_del: 0, //是否删除 0：正常；1:删除
-    has_submit: false, //是否提交
-    asset_usd: 0,  //资产usd
-    asset_cny: 0, //资产人民币
-    // type: '',
-    // token_list: []
+	chain_id: '', //chain的ID
+	device_id: '', // 设备ID
+	wallet_name: '',// 钱包名称
+	wallet_uuid: '',// 钱包ID
+	mnemonic_code: '',// 助记词编码
+	password: '',// 密码
+	balance: 0,// 余额
+	asset_usd: 0,  //资产usd
+	asset_cny: 0, //资产人民币
+	has_submit: false, //是否提交
+	is_del: 0, //是否删除 0：正常；1:删除
 }
+
+export const INIT_ACCOUNT = {
+    wallet_id: 0, //资产ID
+    index: 0, //Bip地址索引
+    address:'', //地址
+    pub_key:'', //公钥
+    priv_key: '', //加密的私钥
+    is_del: 0, //是否删除状态 0正常 1删除
+}
+
 export const INIT_TOKEN ={
     address: "",
     balance: "0",

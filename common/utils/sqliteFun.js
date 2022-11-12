@@ -1,26 +1,18 @@
 import DB from "@/common/utils/sqlite.js";
-export const getWalletList = () => {
+export const getWalletList = async (key, value) => {
     let walletList = [];
-    DB.selectTableData('wallet')
+    await DB.selectTableData('wallet', key, value)
     .then((res) => {
-		walletList = res;
-		console.log('wallet表数据', res)
+      walletList = res;
+      console.log('wallet表数据', res)
     })
     .catch((error) => {
-		console.log('查询wallet失败', error)
+		  console.log('查询wallet失败', error)
     })
 	return walletList
 }
 
-export const getChainInfo = (type) => {
-    let chainInfo = {};
-    DB.selectTableData('chain', 'name', type)
-	.then((res) => {
-		chainInfo = res[0] || {}
-		console.log('chain表数据',res)
-	})
-	.catch((error) => {
-		console.log('查询失败',error)
-	})
-	return chainInfo
+export const getChainInfo = async (type) => {
+    const res = await DB.selectTableData('chain', 'name', type)
+	return res[0]||[]
 }

@@ -2,8 +2,9 @@
 	import DB from "@/common/utils/sqlite.js";
 	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
 	import { showToast } from "@/common/utils"
+	
 	export default {
-		onLaunch: function() {
+		onLaunch: async function() {
 			console.log('App Launch')
 			// #ifdef APP-PLUS
 			this.openSQL()
@@ -34,15 +35,19 @@
 				this.setTableData()
 			}
 		  },
-		  setTableData(){
+		  async setTableData(){
+			// DB.dropTable('chain')
+			// DB.dropTable('wallet')
+			// DB.dropTable('asset')
+			// DB.dropTable('account')
 			this.createTable('chain').then(res => {
 				Object.keys(CRYPTOCURRENCY_TYPE).map((item) => {
 					const { name, symbol, chain, img, activeImg, support } = CRYPTOCURRENCY_TYPE[item];
-					let sql = `'${name}','${symbol}','${chain}','${img}','${activeImg}','${0}','${support}'`
+					let sql = `'${name}','${symbol}','${chain}','${img}','${activeImg}','0','${support}'`
 					let condition = "'name', 'symbol', 'chain', 'logo', 'active_logo', 'is_del', 'support'"
 					DB.insertTableData('chain', sql, condition)
-					  .then((res) => {
-						console.log('新增数据成功')
+					  .then((res2) => {
+						console.log('新增数据成功', res2)
 					  })
 					  .catch((error) => {
 						console.log('失败', error)
@@ -65,7 +70,7 @@
 				//链表
 				chain: '"id" INTEGER PRIMARY KEY AUTOINCREMENT, "name" varchar, "symbol" varchar, "chain" varchar, "logo" varchar, "active_logo" varchar, "is_del" int, "support" boolean',
 				//钱包表
-				wallet: '"id" INTEGER PRIMARY KEY AUTOINCREMENT, "chain_id" bigInt, "wallet_name" varchar, "device_id" varchar, "wallet_uuid" varchar, "mnemonic_code" varchar, "password" varchar, "balance" decimal, "asset_usd" decimal, "asset_cny" decimal, "has_sumbit" boolean, "is_del" int',
+				wallet: '"id" INTEGER PRIMARY KEY AUTOINCREMENT, "chain_id" bigInt, "wallet_name" varchar, "device_id" varchar, "wallet_uuid" varchar, "mnemonic_code" varchar, "password" varchar, "balance" decimal, "asset_usd" decimal, "asset_cny" decimal, "has_submit" boolean, "is_del" int',
 				// 资产表
 				asset: '"id" INTEGER PRIMARY KEY AUTOINCREMENT, "wallet_id" bigInt, "logo" varchar, "name" varchar, "contract_addr" varchar, "unit" int, "balance" decimal, "asset_usd" decimal, "is_del" decimal',
 				//账户表
