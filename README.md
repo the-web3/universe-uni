@@ -31,9 +31,8 @@ npm install
 
 #### Start Project by HbuilderX
 
-```bash
 open project by HbuilderX, Choice start ways you like by HbuilderX, You can run in explorer, your phone and weichat etc.
-```
+
 
 ## Contribute
 
