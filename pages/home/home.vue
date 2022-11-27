@@ -172,6 +172,7 @@
 				unSubmitWallet = unSubmitWallet.map(item => {
 					const { chain_id, device_id, wallet_uuid, wallet_name, address } = item
 					const { chain, symbol } = CHAIN_LIST.filter(item=> item.id === chain_id)[0];
+					//TODO: index and contract_addr maybe from sqlite
 					return {
 						chain,
 						symbol,
@@ -179,13 +180,15 @@
 						device_id,
 						wallet_uuid,
 						wallet_name,
+						index: '0', 
 						address,
 						contract_addr: "",
 					}
 				})
-				console.log('unSubmitWallet', unSubmitWallet)
 				if(unSubmitWallet.length > 0) {
-					this.$api.batch_submit_wallet(unSubmitWallet).then(() => {
+					this.$api.batch_submit_wallet({
+						batch_wallet: unSubmitWallet
+					}).then(() => {
 						const currentWallet = uni.getStorageSync('currentWallet')
 						if(!currentWallet.has_submit){
 							currentWallet.has_submit = 1
