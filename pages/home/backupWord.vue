@@ -15,18 +15,18 @@
 			return {
 				walletName: '',
 				password: '',
-				type: ''
+				chain_name: ''
 			};
 		},
 		onLoad(options) {
 			this.walletName = options.walletName
 			this.password = options.password
-			this.type = options.type
+			this.chain_name = options.chain_name
 		},
 		methods: {
 			handleConfirm() {
 				uni.navigateTo({
-					url: `./backupStep?type=${this.type}&walletName=${this.walletName}&password=${this.password}`
+					url: `./backupStep?chain_name=${this.chain_name}&walletName=${this.walletName}&password=${this.password}`
 				})
 			}
 		}

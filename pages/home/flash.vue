@@ -53,7 +53,7 @@
 					</view>
 				</view>
 				<view class="flex-between alcenter receive-address mt30">
-					<input class="flex-one ft32" type="number" v-model="address" placeholder="请输入接收地址" placeholder-style="font-size: 28rpx;color: #9397AF;"/>
+					<input class="flex-one ft32" v-model="address" placeholder="请输入接收地址" placeholder-style="font-size: 28rpx;color: #9397AF;"/>
 					<view class="local-wallet ft20 flex-center ml20" @tap="handleOpen">本地钱包</view>
 				</view>
 			</view>
@@ -83,74 +83,24 @@
 					<view class="ft32">钱包列表</view>
 					<image src="/static/image/guanbi-3@2x.png" mode="" @tap="handleClose"></image>
 				</view>
-				<view class="list-container flex flex-one">
-					<view class="left-menu">
-						<view class="menu-item flex-center" :class="{'active': menuIndex == index}" v-for="(item, index) in menus" :key="index" @tap="changeMenu(index)">
-							<image :src="menuIndex == index ? item.activeImg : item.img" mode=""></image>
-						</view>
-					</view>
-					<div class="right-container flex-one">
-						<view class="flex-between alcenter pl10 pr40 h80">
-							<view class="ft32">{{menus[menuIndex].name}}</view>
-							<image src="/static/image/tianjia@2x.png" mode="" class="add-img" @tap="handleAdd"></image>
-						</view>
-						<view class="add-wallet flex-center" @tap="handleAdd" v-if="currentMenuData.length == 0">添加钱包</view>
-						<view :class="[`wallet-${menuIndex}`, 'wallet-item flex-around flex-column c-white pl30 pr20']" v-for="(item, index) in currentMenuData" :key="index">
-							<view class="flex alcenter">
-								<view class="ft28">{{item.wallet_name}}</view>
-								<view class="current ft22" v-if="item.address == currentWallet.address">当前</view>
-							</view>
-							<view class="flex-between alcenter">
-								<view class="flex alcenter" style="overflow: hidden;">
-									<view class="address pr20">{{item.address}}</view>
-									<image src="/static/image/copy.png" mode="" class="copy-img" @tap="handleCopy(item.address)"></image>
-								</view>
-							</view>
-						</view>
-					</div>
-				</view>
+				<wallet-list @changeWallet="handleSelectWallet"/>
 			</view>
 		</uni-popup>
 	</view>
 </template>
 
 <script>
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import walletList from '@/components/wallet-list/index.vue'
 	export default {
+		components: {
+			walletList,
+		},
 		data() {
 			return {
 				num1: 0.001,
 				num2: '',
 				address: '',
-				menus: [
-					{
-						img: '/static/image/BTC_h@2x.png',
-						activeImg: '/static/image/BTC@2x.png',
-						name: '比特币'
-					},
-					{
-						img: '/static/image/ETH_h@2x.png',
-						activeImg: '/static/image/ETH@2x.png',
-						name: '以太坊'
-					},
-					{
-						img: '/static/image/EOS_h@2x.png',
-						activeImg: '/static/image/EOS@2x.png',
-						name: 'EOS'
-					},
-					{
-						img: '/static/image/USDT-h@2x.png',
-						activeImg: '/static/image/USDT@2x.png',
-						name: 'CRT'
-					}
-				],
-				menuIndex: 0,
-				currentWallet: {},
-				currentMenuData: []
 			};
-		},
-		onLoad() {
-			this.currentWallet = uni.getStorageSync('currentWallet')
 		},
 		onNavigationBarButtonTap() {
 			uni.navigateTo({
@@ -160,61 +110,14 @@
 		methods: {
 			handleOpen() {
 				this.$refs.popup.open()
-				if(this.menuIndex == 1) {
-					let walletData = getAllWalletData()
-					this.currentMenuData = walletData.find(item => {
-						return item.type == 'ETH'
-					}).list
-				}else{
-					this.currentMenuData = []
-				}
 			},
 			handleClose() {
 				this.$refs.popup.close()
 			},
-			changeMenu(index) {
-				this.menuIndex = index
-				if(this.menuIndex == 1) {
-					let walletData = getAllWalletData()
-					this.currentMenuData = walletData.find(item => {
-						return item.type == 'ETH'
-					}).list
-				}else{
-					this.currentMenuData = []
-				}
+			handleSelectWallet(data) {
+				this.address = data.address
+				this.handleClose()
 			},
-			handleAdd() {
-				if(this.menuIndex != 1) {
-					return this.$alert('暂不支持')
-				}
-				uni.showActionSheet({
-				    itemList: ['创建', '导入'],
-				    success: (res) => {
-				        if(res.tapIndex == 0) {
-							uni.navigateTo({
-								url: '/pages/my/createWallet'
-							})
-						}else{
-							uni.navigateTo({
-								url: '/pages/my/addWallet'
-							})
-						}
-				    },
-				    fail: (res) => {
-				        console.log(res.errMsg);
-				    }
-				});
-			},
-			handleCopy(address) {
-				uni.setClipboardData({
-					data: address,
-					success: () => {
-						uni.showToast({
-							title: '复制成功'
-						})
-					}
-				})
-			}
 		}
 	}
 </script>

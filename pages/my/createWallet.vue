@@ -6,11 +6,11 @@
 		</view>
 		<view class="form-item">
 			<view class="ft32 mb20">设置密码</view>
-			<input class="h60 ft26" password v-model="password" placeholder="密码不少于8位数" placeholder-style="font-size: 26rpx;color: #9397AF;" />
+			<input class="h60 ft26" password v-model="password" placeholder="密码不少于8位,至少包含1个字母和一个数字" placeholder-style="font-size: 26rpx;color: #9397AF;" />
 		</view>
 		<view class="form-item">
 			<view class="ft32 mb20">确认密码</view>
-			<input class="h60 ft26" password v-model="confirmPassword" placeholder="密码不少于8位数" placeholder-style="font-size: 26rpx;color: #9397AF;" />
+			<input class="h60 ft26" password v-model="confirmPassword" placeholder="密码不少于8位,至少包含1个字母和一个数字" placeholder-style="font-size: 26rpx;color: #9397AF;" />
 		</view>
 		<view class="flex alcenter pl40 mt40">
 			<checkbox value="cb" :checked="checked" color="#94A9FF" @tap="handleCheck" style="border-radius: 50%;"/>
@@ -24,6 +24,9 @@
 </template>
 
 <script>
+	import { rules } from '@/common/utils/validation.js';
+	import { showToast } from '@/common/utils';
+	
 	export default {
 		data() {
 			return {
@@ -31,7 +34,7 @@
 				password: '',
 				confirmPassword: '',
 				checked: false,
-				type: ''
+				chain_name: ''
 			};
 		},
 		computed: {
@@ -40,10 +43,10 @@
 			}
 		},
 		onLoad(options) {
-			if(options.type) {
-				this.type = options.type;
+			if(options.chain_name) {
+				this.chain_name = options.chain_name
 				uni.setNavigationBarTitle({
-					title: `创建${options.type}钱包`
+					title: `创建${options.chain_name}钱包`
 				})
 			}
 		},
@@ -52,9 +55,17 @@
 				this.checked = !this.checked
 			},
 			handleSave() {
-				if(!this.isActive) return 
+				if(!this.isActive) return
+				if(!rules.password.isVaild(this.password)){
+					showToast(rules.password.message)
+					return
+				}
+				if(!rules.walletName.isVaild(this.walletName)){
+					showToast(rules.walletName.message)
+					return
+				}
 				uni.navigateTo({
-					url: `/pages/home/backupWord?type=${this.type}&walletName=${this.walletName}&password=${this.password}`
+					url: `/pages/home/backupWord?chain_name=${this.chain_name}&walletName=${this.walletName}&password=${this.password}`
 				})
 				
 			}

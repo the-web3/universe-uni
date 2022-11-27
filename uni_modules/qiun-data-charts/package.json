@@ -1,8 +1,8 @@
 {
   "id": "qiun-data-charts",
   "displayName": "秋云 ucharts echarts 高性能跨全端图表组件",
-  "version": "2.3.3-20210706",
-  "description": "uCharts v2.3上线，支持nvue！全新官方图表组件，支持H5及APP用ECharts渲染图表，uniapp可视化首选组件",
+  "version": "2.4.4-20221102",
+  "description": "uCharts 新增双指缩放、新增山峰图！支持H5及APP用 ucharts echarts 渲染图表，uniapp可视化首选组件",
   "keywords": [
     "ucharts",
     "echarts",
@@ -12,13 +12,9 @@
 ],
   "repository": "https://gitee.com/uCharts/uCharts",
   "engines": {
-    "HBuilderX": "^3.1.0"
+    "HBuilderX": "^3.3.8"
   },
-  "dcloudext": {
-    "category": [
-        "前端组件",
-        "通用组件"
-    ],
+"dcloudext": {
     "sale": {
       "regular": {
         "price": "0.00"
@@ -35,7 +31,8 @@
       "data": "插件不采集任何数据",
       "permissions": "无"
     },
-    "npmurl": ""
+    "npmurl": "https://www.npmjs.com/~qiun",
+    "type": "component-vue"
   },
   "uni_modules": {
     "dependencies": [],
@@ -73,6 +70,10 @@
         "快应用": {
           "华为": "y",
           "联盟": "y"
+        },
+        "Vue": {
+            "vue2": "y",
+            "vue3": "y"
         }
       }
     }

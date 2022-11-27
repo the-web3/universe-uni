@@ -15,7 +15,8 @@
 
 <script>
 	import * as base from '@/common/word/base';
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { rules } from '@/common/utils/validation.js';
+	import { showToast, updateCurrentWallet } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -38,33 +39,22 @@
 		methods: {
 			handleSave() {
 				if(this.word != this.words) {
-					return this.$alert('助记词无效')
+					return showToast('助记词无效')
 				}
+				
 				if(this.newPassword.length < 8) {
-					return this.$alert('密码不少于8位数')
+					return showToast('密码不少于8位数')
 				}else if(this.newPassword != this.confirmPassword){
-					return this.$alert('密码不一致')
+					return showToast('密码不一致')
+				}else if(!rules.password.isVaild(this.newPassword)){
+					return showToast(rules.password.message)
 				}else{
-					let allWalletData = getAllWalletData();
-					let walletIndex = 0;
-					let walletType = Object.keys(allWalletData)[0];
-					const currentTypeWallet = allWalletData.filter( item =>{
-						const index = item.list.findIndex( cur =>{
-							return cur.uuid == this.currentWallet.uuid
-						})
-						if(index !== -1){
-							walletIndex = index
-							walletType = item.type
-							return true
-						}
-						return false
-					})
 					this.currentWallet.password = this.newPassword
-					currentTypeWallet[0].list.splice(walletIndex, 1, this.currentWallet)
-					allWalletData[walletType] = currentTypeWallet[0]
-					uni.setStorageSync('currentWallet', this.currentWallet)
-					uni.setStorageSync('walletData', allWalletData)
-					uni.navigateBack()
+					updateCurrentWallet(this.currentWallet).then(res=>{
+						uni.navigateBack()
+					}).catch(e=>{
+						showToast('重置密码失败, 请稍后再试')
+					})
 				}
 			}
 		}

@@ -2,19 +2,19 @@
 	<view class="my-wallet-container flex">
 		<view class="left-menu">
 			<view class="menu-item flex-center" :class="{'active': menuIndex == index}" v-for="(item, index) in menus" :key="index" @tap="changeMenu(index)">
-				<image :src="menuIndex == index ? item.activeImg : item.img" mode=""></image>
+				<image :src="menuIndex == index ? item.active_logo : item.logo" mode=""></image>
 			</view>
 		</view>
 		<div class="right-container flex-one">
 			<view class="flex-between alcenter pl10 pr40 h80">
-				<view class="ft32">{{menus[menuIndex].name}}</view>
+				<view class="ft32">{{menus[menuIndex] && menus[menuIndex].name}}</view>
 				<image src="../../static/image/tianjia@2x.png" mode="" class="add-img" @tap="handleAdd"></image>
 			</view>
 			<view class="add-wallet flex-center" @tap="handleAdd" v-if="currentMenuData.length == 0">添加钱包</view>
 			<view :class="[`wallet-${menuIndex}`, 'wallet-item flex-around flex-column c-white pl30 pr20']" v-for="(item, index) in currentMenuData" :key="index" @tap="handleSelectWallet(item)">
 				<view class="flex alcenter">
 					<view class="ft28">{{item.wallet_name}}</view>
-					<view class="current ft22" v-if="item.address == currentWallet.address">当前</view>
+					<view class="current ft22" v-if="item.wallet_uuid == currentWallet.wallet_uuid">当前</view>
 				</view>
 				<view class="flex-between alcenter">
 					<view class="flex alcenter mr20" style="width: 360rpx;overflow: hidden;">
@@ -29,32 +29,32 @@
 </template>
 
 <script>
-	import { CRYPTOCURRENCY_MENU } from '@/common/constants';;
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { CHAIN_LIST } from '@/common/constants';
 	export default {
 		data() {
 			return {
-				menus: CRYPTOCURRENCY_MENU,
+				menus: CHAIN_LIST,
 				menuIndex: 0,
 				currentWallet: {},
-				currentMenuData: []
+				currentMenuData: [],
+				walletList: []
 			}
 		},
-		onLoad() {
+		watch: {
+		  walletList(newWalletList){
+			const curMenu = this.menus[this.menuIndex]
+			this.currentMenuData = newWalletList[curMenu.id] || []
+		  }
+		},
+		mounted() {
 			this.currentWallet = uni.getStorageSync('currentWallet')
+			this.walletList = uni.getStorageSync('walletData') || {}
 		},
 		methods: {
-			changeMenu(index) {
+			async changeMenu(index) {
 				this.menuIndex = index
-				const currentCryptocurrency = this.menus[index];
-				//TODO: 区分ETH
-				let walletData = getAllWalletData()
-				const currentCryptocurrencyData = walletData.find(item => {
-					return item.type == currentCryptocurrency.type
-				})
-				this.currentMenuData = currentCryptocurrencyData && currentCryptocurrencyData.list ? currentCryptocurrencyData.list.filter(item => {
-					return !item.contract_address
-				}) :[]
+				const curMenu = this.menus[index]
+				this.currentMenuData = this.walletList[curMenu.id] || []
 			},
 			handleAdd() {
 				const currentCryptocurrency = this.menus[this.menuIndex];
@@ -66,11 +66,11 @@
 				    success: (res) => {
 				        if(res.tapIndex == 0) {
 							uni.navigateTo({
-								url: `/pages/my/createWallet?type=${currentCryptocurrency.type}`
+								url: `/pages/my/createWallet?chain_name=${currentCryptocurrency.name}`
 							})
 						}else{
 							uni.navigateTo({
-								url: `/pages/home/importWallet?type=${currentCryptocurrency.type}`
+								url: `/pages/home/importWallet?chain_name=${currentCryptocurrency.name}`
 							})
 						}
 				    },

@@ -1,10 +1,10 @@
 <template>
 	<view class="direct-transfer-container bg-white plr40 pt20">
 		<view class="coin-detail flex-column justify-center">
-			<view class="ft28 c_9397AF">{{ currentWallet.symbol}} 余额</view>
+			<view class="ft28 c_9397AF">{{ selectCoin.symbol}} 余额</view>
 			<view class="flex alcenter mt10">
-				<view class="ft40">{{ currentWallet.balance }} {{currentWallet.symbol}}</view>
-				<view class="ft28">≈$ {{currentWallet.usdt_price }}</view>
+				<view class="ft40">{{ selectCoin.balance }} {{selectCoin.symbol}}</view>
+				<view class="ft28">≈$ {{selectCoin.asset_usd }}</view>
 			</view>
 		</view>
 		<view class="form-item mt30">
@@ -18,7 +18,7 @@
 			<view class="flex-between alcenter">
 				<view class="ft30 c_262626">转账金额</view>
 				<view class="flex alcenter" @tap="handleSelect">
-					<view class="ft32">{{selectCoin.asset_name}}</view>
+					<view class="ft32">{{selectCoin.symbol}}</view>
 					<image src="../../static/image/arrow-right.png" mode=""></image>
 				</view>
 			</view>
@@ -92,12 +92,11 @@
 </template>
 
 <script>
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import { getDeviceInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
-				deviceId: 'c3c0268fa44293f2',
-				nowWalletData: [],
+				deviceId: '',
 				currentWallet: {},
 				selectCoin: {},
 				address: '',
@@ -121,25 +120,16 @@
 				return (this.gasLimit * this.gasPrice / 10e18 * this.signData.usdt_pirce).toFixed(2)
 			}
 		},
-		onLoad(options) {
+		async onLoad(options) {
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
 			this.currentWallet = uni.getStorageSync('currentWallet')
-			this.selectCoin = this.currentWallet
-			this.currentWallet.balance = Number(this.currentWallet.balance).toFixed(4)
-			this.currentWallet.usdt_price = Number(this.currentWallet.usdt_price).toFixed(4)
+			this.selectCoin = this.currentWallet?.token_list[0] || {}
+			this.selectCoin.balance = Number(this.selectCoin.balance).toFixed(4)
+			this.selectCoin.asset_usd = Number(this.selectCoin.asset_usd).toFixed(4)
 			this.loadSignData()
 			
-			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
 		},
 		methods: {
 			loadSignData() {
@@ -147,7 +137,6 @@
 					chain: this.currentWallet.chain,
 					address: this.currentWallet.address
 				}).then(res => {
-					console.log(res)
 					this.signData = res.result
 					this.gas_list = this.signData.gas_list.map(item => {
 						return {
@@ -160,7 +149,6 @@
 					this.gas_list = this.gas_list.filter(item => {
 						return item.index != 500
 					})
-					console.log(this.gas_list)
 				})
 			},
 			handleOpen() {	
@@ -184,13 +172,13 @@
 				this.$refs.popup.close()
 			},
 			handleSelect() {
-				let list = this.nowWalletData.map(item => {
-					return item.asset_name
+				let list = this.currentWallet.token_list.map(item => {
+					return item.symbol
 				})
 				uni.showActionSheet({
 				    itemList: list,
 				    success: (res) => {
-						this.selectCoin = this.nowWalletData[res.tapIndex]
+						this.selectCoin = this.currentWallet.token_list[res.tapIndex]
 						this.amount = ''
 				    },
 				    fail: (res) => {
@@ -203,16 +191,18 @@
 					title: '请稍等',
 					mask: true
 				})
+				const { wallet_uuid } = this.currentWallet
+				const { contract_addr, address_list, symbol } = this.selectCoin
 				this.$api.send_tx({
-					"device_id": this.deviceId,
-					"wallet_uuid": this.selectCoin.uuid,
-					"contract_addr": this.selectCoin.contract_address,
-					"from_address": this.selectCoin.address,
-					"to_address": this.address,
-					"amount": parseFloat(parseFloat(this.amount).toFixed(4)),
-					"asset_name": this.selectCoin.asset_name,
-					"gas_price": this.tabIndex == 3 ? this.gasPrice.toString() : this.gas_list[this.tabIndex].gas_price.toString(),
-					"gas_limit": this.tabIndex == 3 ? this.gasLimit.toString() : this.signData.gas_limit.toString()
+					device_id: this.deviceId,
+					wallet_uuid,
+					contract_addr,
+					from_address: address_list[0].address,
+					to_address: this.address,
+					amount: parseFloat(parseFloat(this.amount).toFixed(4)),
+					asset_name: symbol,//TODO: check
+					gas_price: this.tabIndex == 3 ? this.gasPrice.toString() : this.gas_list[this.tabIndex].gas_price.toString(),
+					gas_limit: this.tabIndex == 3 ? this.gasLimit.toString() : this.signData.gas_limit.toString()
 				}).then(res => {
 					uni.hideLoading()
 					this.handleClose()

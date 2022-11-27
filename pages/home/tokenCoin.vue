@@ -11,7 +11,7 @@
 		<view class="ft32 bg-white hot-title flex alcenter plr40 h100">热门代币</view>
 		<view class="list-item bg-white flex-between alcenter h120 plr40" v-for="(item, index) in hotList" :key="index">
 			<view class="flex alcenter" style="width: 500rpx;">
-				<image :src="`${config.imgUrl + item.icon}`" mode="" class="mr20"></image>
+				<image :src="`${config.imgUrl + item.active_logo}`" mode="" class="mr20"></image>
 				<view style="overflow: hidden;">
 					<view class="ft32">{{item.token_symbol}}</view>
 					<view class="c_9397AF line-one">{{item.contract_addr}}</view>
@@ -23,13 +23,13 @@
 		<scroll-view v-if="list.length > 0" @scrolltolower="handleBottom" class="scroll-box" scroll-y="true" :style="{'height': scrollHeight + 'px'}">
 			<view class="list-item bg-white flex-between alcenter h120 plr40" v-for="(item, index) in list" :key="index">
 				<view class="flex alcenter" style="width: 500rpx;">
-					<image :src="`${config.imgUrl + item.icon}`" mode="" class="mr20"></image>
+					<image :src="`${config.imgUrl + item.active_logo}`" mode="" class="mr20"></image>
 					<view style="overflow: hidden;">
 						<view class="ft32">{{item.token_symbol}}</view>
 						<view class="c_9397AF">{{item.contract_addr}}</view>
 					</view>
 				</view>
-				<image v-if="allContractAddress.includes(item.contract_addr)" src="../../static/image/jinzhi@2x.png" mode="" class="arrow" @tap="handleDelete(item.contract_addr)"></image>
+				<image v-if="allContractAddress.includes(item.contract_addr)" src="../../static/image/jinzhi@2x.png" mode="" class="arrow" @tap="handleDelete(item)"></image>
 				<image v-else src="../../static/image/add.png" mode="" class="arrow" @tap="handleAdd(item)"></image>
 			</view>
 		</scroll-view>
@@ -38,12 +38,12 @@
 
 <script>
 	import config from '@/config'
-	import { postWalletInfo, add_remove_token_list } from '@/common/utils';
+	import { postTokenInfo, getDeviceInfo, updateCurrentWallet } from '@/common/utils';
 	export default {
 		data() {
 			return {
 				config,
-				deviceId: 'c3c0268fa44293f2',
+				deviceId: '',
 				token_name: '',
 				hotList: [],
 				page: 1,
@@ -53,7 +53,7 @@
 				scrollHeight: 0,
 				currentMainCoin: {}, //当前主链币
 				allContractAddress: [],
-				type: ''
+				chain: ''
 			};
 		},
 		onNavigationBarButtonTap() {
@@ -69,7 +69,6 @@
 			}
 		},
 		onNavigationBarSearchInputConfirmed(e) {
-			console.log(e.text)
 			this.token_name = e.text
 			if(!this.token_name) {
 				this.list = []
@@ -78,49 +77,40 @@
 				this.loadData()
 			}
 		},
-		onLoad(options) {
-			this.type = options.type
+		async onLoad(options) {
+			this.chain = options.chain
 			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
-			
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
 			this.scrollHeight = uni.getSystemInfoSync().windowHeight
 			this.loadHotList()
-			this.currentMainCoin = uni.getStorageSync('currentWallet')
 			this.setAllContractAddress()
 		},
 		methods: {
 			//热门代币
 			loadHotList() {
-				this.$api.hot_token_list().then(res => {
+				this.$api.hot_token_list({
+					chain: this.chain,
+				}).then(res => {
 					this.hotList = res.result
 				})
 			},
 			loadData() {
 				this.$api.sourch_add_token({
+					chain: this.chain,
 					token_name: this.token_name,
 					page: this.page,
 					page_size: this.page_size
 				}).then(res => {
-					console.log(res)
-					if(!res.data.gds_lst || res.data.gds_lst.length < this.page_size) {
+					if(!res.result || res.result.length < this.page_size) {
 						this.hasMore = false
 					}else{
 						this.hasMore = true
 					}
 					if(this.page == 1) {
-						this.list = res.data.gds_lst || []
+						this.list = res.result || []
 					}else{
-						this.list = this.list.concat(res.data.gds_lst || [])
+						this.list = this.list.concat(res.result || [])
 					}
 				})
 			},
@@ -134,56 +124,55 @@
 				}
 			},
 			setAllContractAddress(){
-				let allContractData = this.currentMainCoin.token_list.filter(item => {
-					return item.contract_addr.length > 0 && item.wallet_name == this.currentMainCoin.wallet_name
-				})
-				this.allContractAddress = allContractData.map(item => {
+				this.currentMainCoin = uni.getStorageSync('currentWallet')
+				this.allContractAddress = (this.currentMainCoin.token_list||[]).filter(item => {
+					return item.contract_addr.length > 0
+				}).map(item => {
 					return item.contract_addr
 				})
 			},
-			handleDelete({contract_addr}) {
+			handleDelete({contract_addr, token_symbol}) {
+				const { wallet_uuid, } = this.currentMainCoin;
 				this.$api.delete_wallet_token({
+					chain: this.chain,
 					device_id: this.deviceId, // 设备ID
-					wallet_uuid: this.currentMainCoin.uuid,
-					contract_addr
+					wallet_uuid: wallet_uuid,
+					symbol:token_symbol,
+					contract_addr,
 				}).then(res => {
 					this.currentMainCoin.token_list = this.currentMainCoin.token_list.filter(item => {
 						return item.contract_addr !== contract_addr
 					})
-					add_remove_token_list(this.currentMainCoin)
-					this.setAllContractAddress()
+					updateCurrentWallet(this.currentMainCoin).then(()=>{
+						this.setAllContractAddress()
+					})
 				})
 			},
 			handleAdd(item) {
-				const { uuid, chain, wallet_name, address, private_key, mnemonic_code, password } = this.currentMainCoin
-				postWalletInfo(this.type, {
-					device_id: this.deviceId, // 设备ID
-					uuid,// 钱包ID
-					chain,// 链名称
-					symbol: item.token_symbol,// 币种名称
-					wallet_name,// 钱包名称
-					address,// 地址
-					private_key,// 私钥
-					mnemonic_code,// 助记词编码
-					password,// 密码
-					icon: `${item.icon}`,// 图标
-					contract_addr: item.contract_addr,// 合约地址(eth 空)
-				}, { 
-					in_token_list: true,
-					callback: ()=>{
-						this.$api.getWalletBalance({
-							device_id: this.deviceId,
-							wallet_uuid: this.currentMainCoin.uuid,
-							chain: this.currentMainCoin.chain
-						}).then(res => {
-							let { token_list, total_asset_cny, total_asset_usd } = res.result;
-							this.currentMainCoin.token_list = token_list;
-							this.currentMainCoin.total_asset_cny = total_asset_cny;
-							this.currentMainCoin.total_asset_usd = total_asset_usd;
-							add_remove_token_list(this.currentMainCoin)
+				const { wallet_uuid, chain, wallet_name, address } = this.currentMainCoin
+				postTokenInfo({
+					chain,
+					wallet_uuid,
+					symbol: item.token_symbol,
+					wallet_name,
+					address,
+					contract_addr: item.contract_addr,
+					unit: item.unit,
+					token_name: item.token_name
+				},()=>{
+					this.$api.getWalletBalance({
+						device_id: this.deviceId,
+						wallet_uuid,
+						chain
+					}).then(res => {
+						let { token_list, asset_cny, asset_usd } = res.result
+						this.currentMainCoin.token_list = token_list;
+						this.currentMainCoin.asset_cny = asset_cny;
+						this.currentMainCoin.asset_usd = asset_usd;
+						updateCurrentWallet(this.currentMainCoin).then(()=>{
 							this.setAllContractAddress()
 						})
-					}
+					})
 				})
 			}
 		}
