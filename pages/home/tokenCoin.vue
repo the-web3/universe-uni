@@ -38,6 +38,7 @@
 
 <script>
 	import config from '@/config'
+	import DB from "@/common/utils/sqlite.js";
 	import { postTokenInfo, getDeviceInfo, updateCurrentWallet } from '@/common/utils';
 	export default {
 		data() {
@@ -132,18 +133,19 @@
 				})
 			},
 			handleDelete({contract_addr, token_symbol}) {
-				const { wallet_uuid, } = this.currentMainCoin;
+				const { wallet_uuid, chain_id } = this.currentMainCoin;
 				this.$api.delete_wallet_token({
 					chain: this.chain,
 					device_id: this.deviceId, // 设备ID
 					wallet_uuid: wallet_uuid,
-					symbol:token_symbol,
+					symbol: token_symbol,
 					contract_addr,
 				}).then(res => {
 					this.currentMainCoin.token_list = this.currentMainCoin.token_list.filter(item => {
 						return item.contract_addr !== contract_addr
 					})
-					updateCurrentWallet(this.currentMainCoin).then(()=>{
+					updateCurrentWallet(this.currentMainCoin).then(async ()=>{
+						await DB.updateTableData('asset', `is_del = '1'`, "chain_id", chain_id, "contract_addr", contract_addr)
 						this.setAllContractAddress()
 					})
 				})
@@ -169,7 +171,7 @@
 						this.currentMainCoin.token_list = token_list;
 						this.currentMainCoin.asset_cny = asset_cny;
 						this.currentMainCoin.asset_usd = asset_usd;
-						updateCurrentWallet(this.currentMainCoin).then(()=>{
+						updateCurrentWallet(this.currentMainCoin).then(async ()=>{
 							this.setAllContractAddress()
 						})
 					})
