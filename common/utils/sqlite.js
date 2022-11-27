@@ -224,12 +224,18 @@ module.exports = {
 
   // 修改数据表里的数据 sql:"UPDATE dbTable SET 列名 = '列值',列名 = '列值' WHERE lname = 'lvalue'"
   // 修改 UPDATE 、 dbTable 是表名, data: 要修改的列名=修改后列值, lname,lvalue 是查询条件的列名和列值
-  updateTableData(dbTable, data, lname, lvalue) {
+  updateTableData(dbTable, data, lname, lvalue, cc, dd) {
     let sql = '';
     if (lname == undefined) {
       sql = `UPDATE ${dbTable} SET ${data}`;
     } else {
-      sql = `UPDATE ${dbTable} SET ${data} WHERE ${lname} = '${lvalue}'`;
+      if (lname !== undefined && cc !== undefined) {
+        // 两个检索条件
+        sql = `UPDATE ${dbTable} SET ${data} WHERE ${lname} = '${lvalue}' AND ${cc} = '${dd}'`;
+      }else{
+        sql = `UPDATE ${dbTable} SET ${data} WHERE ${lname} = '${lvalue}'`;
+      }
+
     }
     // WHERE 前面是要修改的列名、列值，后面是条件的列名、列值
     return new Promise((resolve, reject) => {

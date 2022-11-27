@@ -1,7 +1,7 @@
 <template>
 	<view class="property-detail-container">
 		<view class="top-container flex-column alcenter">
-			<uni-nav-bar statusBar fixed left-icon="back" rightText="详情" :title="walletData.name" backgroundColor="#4C6EF5" color="#ffffff" @clickLeft="goBack" @clickRight="handleRight">
+			<uni-nav-bar statusBar fixed left-icon="back" rightText="详情" :title="tokenData.name" backgroundColor="#4C6EF5" color="#ffffff" @clickLeft="goBack" @clickRight="handleRight">
 			</uni-nav-bar>
 			<view class="flex c-white mt40">
 				<view class="ft72">{{balanceData.balance }}</view>
@@ -51,6 +51,7 @@
 </template>
 
 <script>
+	import { getDeviceInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -66,16 +67,21 @@
 					extra:{area:{type:'curve',addLine:true,gradient:true}}
 				},
 				chartsDataLine: {},
-				walletData: {},
+				tokenData: {},
 				balanceData: {},
 				recordList: [],
 				page: 1,
 				page_size: 10,
-				hasMore: false
+				hasMore: false,
+				currentWallet:{}
 			};
 		},
-		onLoad(options) {
-			this.walletData = JSON.parse(options.walletData || "{}")
+		async onLoad(options) {
+			this.tokenData = JSON.parse(options.tokenData || "{}")
+			this.currentWallet = uni.getStorageSync('currentWallet')
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
 			this.loadRecord()
 			this.loadBalance()
 			
@@ -99,12 +105,17 @@
 		},
 		methods: {
 			loadBalance() {
+				const { chain, symbol, address_list, contract_addr } = this.tokenData
+				const {wallet_uuid} = this.currentWallet
 				this.$api.getAddressBalance({
-					"chain": this.walletData.chain,
-					"symbol": this.walletData.symbol,
-					"network": "mainnet",
-					"address": this.walletData.address,
-					"contract_addr": "",// item.contract_addr,
+					device_id: this.deviceId,
+					wallet_uuid,
+					index: address_list[0].index,
+					chain,
+					symbol,
+					network: "mainnet",
+					address: address_list[0].address,
+					contract_addr,
 				}).then(res => {
 					console.log("enter here now")
 					this.balanceData = res.result
@@ -139,18 +150,18 @@
 						data: data
 					  }]
 					}
-					this.chartsDataLine=linearareadata
+					this.chartsDataLine= linearareadata
 				})
 			},
 			loadRecord() {
 				return new Promise((resolve, reject) => {
-					console.log("aaa=====", this.walletData.chain)
+					const { chain, symbol, address_list, contract_addr } = this.tokenData
 					this.$api.get_tx_by_address({
 						network: "mainnet",
-						chain: this.walletData.chain,
-						symbol: this.walletData.symbol,
-						address: this.walletData.address,
-						contract_address: this.walletData.contract_addr,
+						chain,
+						symbol,
+						address: address_list[0].address,
+						contract_addr,
 						page: this.page.toString(),
 						page_size: this.page_size.toString()
 					}).then(res => {
@@ -180,12 +191,12 @@
 			},
 			goTransfer() {
 				uni.navigateTo({
-					url: `./transfer?address=${this.walletData.address}&contractaddress=${this.walletData.contract_addr}`
+					url: `./transfer?address=${this.tokenData.address}&contractaddress=${this.tokenData.contract_addr}`
 				})
 			},
 			goGather() {
 				uni.navigateTo({
-					url: `./gather?address=${this.walletData.address}`
+					url: `./gather?address=${this.tokenData.address}`
 				})
 			},
 			goDetail(item) {

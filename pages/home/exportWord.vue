@@ -8,7 +8,7 @@
 </template>
 
 <script>
-	import * as base from '@/common/word/base';
+	import * as base from '@/common/wallet';
 	export default {
 		data() {
 			return {
@@ -18,7 +18,8 @@
 		},
 		async onLoad() {
 			this.currentWallet = uni.getStorageSync('currentWallet')
-			this.fillWords = await base.EntropyToMnemonic(this.currentWallet.mnemonic_code, "english")
+			const {mnemonic_code, password} = this.currentWallet
+			this.fillWords = await base.DecodeMnemonic({encrytMnemonic: base.AesDecrypt(mnemonic_code, password), language:"english"})
 			this.fillWords = this.fillWords.split(' ')
 		},
 		methods: {

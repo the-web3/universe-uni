@@ -1,14 +1,16 @@
-import { INIT_WALLET_DATA } from '@/common/constants';
-
 export const getAllWalletData = () => {
-    const allWalletData = uni.getStorageSync('walletData');
-    if(allWalletData){
-        return INIT_WALLET_DATA.map(item => allWalletData.filter( localitem => localitem.type === item.type)[0] || item)
-    }
-    return INIT_WALLET_DATA
+    return uni.getStorageSync('walletData') || {}
 }
 
 export const hasWallet = () => {
     const allWalletData = getAllWalletData();
-    return allWalletData.filter(item=> item.list.length >0).length > 0
+    const chainIdList = Object.keys(allWalletData)
+    let hasWallet = false
+    for(let chainId of chainIdList){
+        if(allWalletData[chainId].length > 0){
+            hasWallet = true;
+            break;
+        }
+    }
+    return hasWallet
 }

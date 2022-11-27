@@ -13,10 +13,7 @@
 </template>
 
 <script>
-	import * as base from '@/common/word/base';
-	import * as address from '@/common/word/address';
-	import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
-	// import { postWalletInfo } from '@/common/utils';
+	import { postWalletInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
@@ -25,43 +22,18 @@
 				words: [],
 				shuffleWords: [],
 				fillWords: new Array(12).fill(''),
-				deviceId: 'c3c0268fa44293f2',
-				mnemonicCode: '',
 				address: '',
 				privateKey: '',
-				type: ''
+				chain_name: ''
 			}
 		},
 		async onLoad(options) {
-			this.type = options.type
+			this.chain_name = options.chain_name
 			this.walletName = options.walletName
 			this.password = options.password
 			this.words = options.words.split(' ')
 			this.shuffleWords = options.words.split(' ')
 			this.shuffle(this.shuffleWords)
-			
-			//助记词编码
-			this.mnemonicCode = await base.MnemonicToEntropy(options.words, "english")
-			
-			//助记词生成地址
-			var seed_sync = await base.MnemonicToSeedSync(options.words, "")
-			var addrs = await address.CreateEthAddressBySeed(seed_sync, 0)
-			console.log(addrs)
-			this.address = addrs.address
-			this.privateKey = addrs.privateKey
-			
-			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
 		},
 		methods: {
 			shuffle (array) {
@@ -80,108 +52,17 @@
 					this.fillWords.splice(index, 1, item)	
 				}
 			},
-			postWalletInfo (type, data, other) {
-				//钱包提交数据
-				// {
-				// 	chain,
-				// 	symbol,
-				// 	network: "mainnet",
-				// 	device_id,
-				// 	wallet_uuid: uuid,
-				// 	wallet_name,
-				// 	address,
-				// 	contract_addr,
-				// }
-				// 根据type拿链的内容 得到chain、symbol
-				//拿到当前的device_id、wallet_uuid、wallet_name、address去生成钱包
-				//获取balance、asset_usd、asset_cny 
-				//存钱包表，然后拿到wallet的id存账户表
-
-				// const walletsList = getAllWalletData();
-				// const currentWallet = walletsList ? walletsList.filter(item => {
-				// 	return item.type == type
-				// }): [{
-				// 	type,
-				// 	list: []
-				// }];
-				
-				// const { device_id, uuid, chain, symbol, wallet_name, address, private_key, mnemonic_code,password, icon, contract_addr} = data;
-
-				// const currentWalletInfo = Object.assign({}, INIT_WALLET, data, {type});
-
-				// uni.showLoading({
-				// 	title: '提交中',
-				// 	mask: true
-				// })
-
-				// api.submitWalletInfo({
-				// 	chain,
-				// 	symbol,
-				// 	network: "mainnet",
-				// 	device_id,
-				// 	wallet_uuid: uuid,
-				// 	wallet_name,
-				// 	address,
-				// 	contract_addr,
-				// }).then(res => {
-				// 	currentWalletInfo.hasSubmit = true
-				// 	api.getAddressBalance({
-				// 		chain,
-				// 		symbol,
-				// 		network: "mainnet",
-				// 		address,
-				// 		contract_addr,
-				// 	}).then(res => {
-				// 		uni.hideLoading()
-				// 		if(!other || !other.in_token_list){
-				// 			currentWalletInfo.balance = res.result.balance
-				// 			currentWalletInfo.cny_price = res.result.cny_price
-				// 			currentWalletInfo.usdt_price = res.result.usdt_price
-				// 			currentWallet[0].list.push(currentWalletInfo)
-				// 			const currentWalletIndex = walletsList.findIndex(item=> item.type === type);
-				// 			const newWalletsList = currentWalletIndex !== -1 ? walletsList.map(item=> {
-				// 				if(item.type === type ){
-				// 					return currentWallet[0]
-				// 				}else{
-				// 					return item
-				// 				}
-				// 			}) : [...walletsList,...currentWallet];
-				// 			uni.setStorageSync('currentWallet', currentWalletInfo)
-				// 			uni.setStorageSync('walletData', newWalletsList)
-				// 			uni.reLaunch({
-				// 				url: '/pages/home/home'
-				// 			})
-				// 		}
-				// 		if(other && other.callback){
-				// 			other.callback()
-				// 		}
-				// 	}).catch(() => {
-				// 		uni.hideLoading()
-				// 	})
-				// }).catch(() => {
-				// 	uni.hideLoading()
-				// })
-			},
 			handleConfirm() {
 				let flag = this.fillWords.every(item => {
 					return item
 				})
 				if(flag) {
 					if(this.fillWords.toString() == this.words.toString()) {
-						let uuid = Math.random().toString(36).substr(-10);
-						const { chain, symbol, activeImg } = CRYPTOCURRENCY_TYPE[this.type] || {};
-						this.postWalletInfo(this.type,{
-							device_id: this.deviceId, // 设备ID
-							uuid,// 钱包ID
-							chain,// 链名称
-							symbol,// 币种名称
-							wallet_name: this.walletName,// 钱包名称
-							address: this.address,// 地址
-							private_key: this.privateKey,// 私钥
-							mnemonic_code: this.mnemonicCode,// 助记词编码
-							password: this.password,// 密码
-							icon: activeImg,// 图标
-							contract_addr: '',// 合约地址
+						postWalletInfo({
+							chain_name: this.chain_name,
+							words: this.words.join(' '),
+							wallet_name: this.walletName,
+							password: this.password,
 						})
 					}else{
 						uni.showToast({

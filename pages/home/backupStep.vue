@@ -20,7 +20,7 @@
 </template>
 
 <script>
-	import * as base from '@/common/word/base';
+	import * as base from '@/common/wallet';
 	export default {
 		data() {
 			return {
@@ -28,15 +28,18 @@
 				password: '',
 				words: [],
 				stepIndex: 0,
-				type: '',
+				chain_name: '',
 			};
 		},
 		async onLoad(options) {
 			this.walletName = options.walletName
 			this.password = options.password
-			let words = await base.GenerateMnemonic(12, "english")
+			const words = await base.CreateMnemonic({
+				number: 12, 
+				language: "english"
+			})
 			this.words = words.split(' ')
-			this.type = options.type
+			this.chain_name = options.chain_name
 		},
 		methods: {
 			handlePrev() {
@@ -48,7 +51,7 @@
 					let words = this.words.join(' ')
 					console.log(words)
 					uni.navigateTo({
-						url: `./validateWord?type=${this.type}&walletName=${this.walletName}&password=${this.password}&words=${words}`
+						url: `./validateWord?chain_name=${this.chain_name}&walletName=${this.walletName}&password=${this.password}&words=${words}`
 					})
 					this.stepIndex = 0
 				}

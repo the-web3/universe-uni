@@ -106,13 +106,6 @@
             }
         },
         {
-            "path": "pages/my/addWallet",
-            "style": {
-                "navigationBarTitleText": "添加钱包",
-                "enablePullDownRefresh": false
-            }
-        },
-        {
             "path": "pages/my/keyAdd",
             "style": {
                 "navigationBarTitleText": "私钥导入",

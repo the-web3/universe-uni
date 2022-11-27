@@ -71,6 +71,13 @@ export const delete_wallet = (params) => {
 		data: params
 	})
 }
+//更新钱包名称
+export const update_wallet_name = (params) => {
+	return $ajax.post({
+		url: 'api/update_wallet_name',
+		data: params
+	})
+}
 
 //添加地址
 export const add_note_book = (params) => {

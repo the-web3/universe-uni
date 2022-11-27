@@ -33,28 +33,26 @@
 </template>
 
 <script>
-	// import * as address from '@/common/word/address';
 	import { allTipWords } from '@/common/word'
 	const INIT_TITLE = '导入身份钱包'
 	import { rules } from '@/common/utils/validation.js';
 	import { showToast } from '@/common/utils';
-	// import { CRYPTOCURRENCY_TYPE } from '@/common/constants';
-	import { postWalletInfo } from '@/common/utils';
-	// import { getChainInfo } from '@/common/utils/sqliteFun.js';
+	import { postWalletInfo, getDeviceInfo } from '@/common/utils';
 	export default {
 		data() {
 			return {
 				allTipWords: allTipWords,
 				tipWords: [],
-				words: 'auto where claw holiday retire kingdom high pluck sad purpose brain pulse',
+				// words: 'auto where claw holiday retire kingdom high pluck sad purpose brain pulse',
+				words: '',
 				walletName: '',
 				password: '',
 				confirmPassword: '',
 				mnemonicCode: '',
-				deviceId: 'c3c0268fa44293f2',
+				deviceId: '',
 				checked: false,
 				fixedBottom: 0,
-				type: '',
+				chain_name: '',
 				title: INIT_TITLE,
 			};
 		},
@@ -63,34 +61,23 @@
 				return this.words && this.walletName && this.password.length >= 8 && this.password == this.confirmPassword && this.checked
 			}
 		},
-		onLoad(options) {
-			// console.log(lodash)
-			if(options.type) {
-				this.type = options.type;
-				this.title =  `导入${options.type}钱包`
+		async onLoad(options) {
+			if(options.chain_name) {
+				this.chain_name = options.chain_name;
+				this.title =  `导入${options.chain_name}钱包`
 				uni.setNavigationBarTitle({
-					title: `导入${options.type}钱包`
+					title: `导入${options.chain_name}钱包`
 				})
 			}
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
 			uni.onKeyboardHeightChange((res) =>{
-				console.log(res.height)
 				if(res.height == 0) {
 					this.tipWords = []
 				}
 				this.fixedBottom = res.height
 			})
-			// 获取设备信息
-			// #ifdef APP-PLUS
-			plus.device.getInfo({
-				success: (e) =>{
-					this.deviceId = e.uuid
-					console.log('getDeviceInfo success: '+JSON.stringify(e));
-				},
-				fail: (e) =>{
-					console.log('getDeviceInfo failed: '+JSON.stringify(e));
-				}
-			});
-			// #endif
 		},
 		methods: {
 			handleInput(e) {
@@ -127,25 +114,16 @@
 					showToast(rules.password.message)
 					return
 				}
+				if(!rules.walletName.isVaild(this.walletName)){
+					showToast(rules.walletName.message)
+					return
+				}
 				postWalletInfo({
-					type: this.type,
+					chain_name: this.chain_name,
 					words: this.words,
-					wallet_name: this.words,
+					wallet_name: this.walletName,
 					password: this.password,
 				})
-				// postWalletInfo(this.type, this.words, {
-				// 	// device_id: this.deviceId, // 设备ID
-				// 	// wallet_uuid: uuid,// 钱包ID
-				// 	// chain,// 链名称
-				// 	// chain_id: id,// 链名称
-				// 	// symbol,// 币种名称
-				// 	wallet_name: this.walletName,// 钱包名称
-				// 	// address: this.address,// 地址
-				// 	// private_key: addrs.privateKey,// 私钥
-				// 	// mnemonic_code: this.mnemonicCode,// 助记词编码
-				// 	password: this.password,// 密码
-				// 	// icon: active_logo,// 图标
-				// })
 			}
 		}
 	}

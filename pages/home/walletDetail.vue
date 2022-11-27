@@ -1,7 +1,7 @@
 <template>
 	<view class="wallet-detail-container plr40">
 		<view class="detail-container flex alcenter pl20 pr30 mt40">
-			<image :src="currentWallet.icon" mode="" class="coin-img mr30"></image>
+			<image v-if="currentWallet.token_list" :src="`${config.imgUrl + currentWallet.token_list[0].logo}`"  mode="" class="coin-img mr30"></image>
 			<view>
 				<view class="flex alcenter">
 					<view class="ft28">{{currentWallet.wallet_name}}</view>
@@ -17,7 +17,7 @@
 			<view class="ft32 c_black">导出助记词</view>
 			<image src="../../static/image/arrow-right.png" mode=""></image>
 		</view>
-		<view v-if="currentWallet.private_key" class="list-item flex-between alcenter h80 mt40 mb40" @tap="handleOpenValidate(2)">
+		<view v-if="currentWallet.privateKey" class="list-item flex-between alcenter h80 mt40 mb40" @tap="handleOpenValidate(2)">
 			<view class="ft32 c_black">导出私钥</view>
 			<image src="../../static/image/arrow-right.png" mode=""></image>
 		</view>
@@ -56,18 +56,22 @@
 		<uni-popup ref="keyPopup" type="center">
 			<view class="key-container flex-column alcenter pt40 pb40 plr30">
 				<view class="ft36">私钥</view>
-				<view class="key mt20 mb20">{{currentWallet.private_key}}</view>
-				<view class="copy-btn flex-center" @tap="handleCopy(currentWallet.private_key)">点击复制</view>
+				<view class="key mt20 mb20">{{currentWallet.privateKey}}</view>
+				<view class="copy-btn flex-center" @tap="handleCopy(currentWallet.privateKey)">点击复制</view>
 			</view>
 		</uni-popup>
 	</view>
 </template>
 
 <script>
-	import { getAllWalletData } from '@/common/utils/storage.js';
+	import config from '@/config'
+	import { deleteWallet } from "@/common/utils"
+	import { showToast, updateCurrentWallet, getDeviceInfo } from '@/common/utils';
+	import { rules } from '@/common/utils/validation.js';
 	export default {
 		data() {
 			return {
+				config,
 				walletName: '',
 				tempName: '',
 				validatePassword: '',
@@ -75,13 +79,19 @@
 				exportType: '', //1 助记词 2 私钥
 			};
 		},
-		onLoad() {
-			this.currentWallet = uni.getStorageSync('currentWallet')
-		},
+		async onLoad() {
+			this.currentWalletInfo()
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
+},
 		onShow(){
-			this.currentWallet = uni.getStorageSync('currentWallet')
+			this.currentWalletInfo()
 		},
 		methods: {
+			async currentWalletInfo(){
+				this.currentWallet = uni.getStorageSync('currentWallet')
+			}, 
 			handleCopy(data) {
 				uni.setClipboardData({
 					data: data,
@@ -98,31 +108,19 @@
 				    content: '确定删除该钱包吗',
 				    success: (res) => {
 				        if (res.confirm) {
+							const { wallet_uuid, chain } = this.currentWallet
 				            this.$api.delete_wallet({
-								device_id: this.currentWallet.device_id,
-								wallet_uuid: this.currentWallet.uuid
-							}).then(() => {
-								let allWalletData = getAllWalletData()
-								let walletIndex = 0;
-								let walletType = Object.keys(allWalletData)[0];
-								const currentTypeWallet = allWalletData.filter( item =>{
-									const index = item.list.findIndex( cur =>{
-										return cur.uuid == this.currentWallet.uuid
-									})
-									if(index !== -1){
-										walletIndex = index
-										walletType = item.type
-										return true
-									}
-									return false
-								})
-								currentTypeWallet[0].list.splice(walletIndex, 1)
-								allWalletData[walletType] = currentTypeWallet[0];
-								//TODO: 删除钱包之后取列表里面的list有值的
-								const currentWalletList = allWalletData.filter(item=>item.list.length>0);
-								uni.setStorageSync('currentWallet', currentWalletList.length>0?currentWalletList[0].list[0]: undefined)
-								uni.setStorageSync('walletData', allWalletData)
-								uni.navigateBack()
+								device_id: this.deviceId,
+								wallet_uuid,
+								chain
+							}).then( async (res) => {
+								if(res.ok){
+									this.currentWallet = await deleteWallet(this.currentWallet)
+									uni.navigateBack()
+								}else{
+									showToast('删除失败')
+								}
+								
 							})
 				        } else if (res.cancel) {
 				            
@@ -139,26 +137,25 @@
 				this.$refs.editPopup.close()
 			},
 			handeleSubmitEdit() {
-				let allWalletData = getAllWalletData()
-				let otherData = allWalletData.filter(item => {
-					return item.type != 'ETH'
-				})
-				let ethWalletData = allWalletData.filter(item => {
-					return item.type == 'ETH'
-				})[0].list
-				let walletIndex = ethWalletData.findIndex(item => {
-					return item.address == this.currentWallet.address
-				})
-				this.currentWallet.wallet_name = this.tempName
-				ethWalletData.splice(walletIndex, 1, this.currentWallet)
-				uni.setStorageSync('currentWallet', ethWalletData[walletIndex])
-				uni.setStorageSync('walletData', [].concat(otherData).concat([
-					{
-						type: 'ETH',
-						list: ethWalletData
+				if(!rules.walletName.isVaild(this.tempName)){
+					showToast(rules.walletName.message)
+					return
+				}
+				this.$api.update_wallet_name({
+					device_id: this.currentWallet.device_id,
+					wallet_uuid: this.currentWallet.wallet_uuid,
+					wallet_name: this.tempName
+				}).then((res) => {
+					if(res.ok){
+						this.currentWallet.wallet_name = this.tempName;
+						this.tempName = ''
+						updateCurrentWallet(this.currentWallet).then(()=>{
+							this.$refs.editPopup.close()
+						}).catch(()=>{
+							showToast('修改钱包名称失败, 请稍后再试')
+						})
 					}
-				]))
-				this.$refs.editPopup.close()
+				})
 			},
 			handleOpenValidate(exportType) {
 				this.exportType = exportType

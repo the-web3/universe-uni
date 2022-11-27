@@ -52,10 +52,10 @@
 						<image src="../../static/image/arrow-right.png" mode=""></image>
 					</navigator>
 				</view>
-				<view class="money-num ft64 pl58" v-if="showMoney">{{currentWallet.total_asset_usd }}</view>
+				<view class="money-num ft64 pl58" v-if="showMoney">{{currentWallet.asset_usd }}</view>
 				<view class="money-num ft64 pl58" v-else>***</view>
 				<view class="items flex">
-					<navigator hover-class="none" :url="`./transfer?address=${currentWallet.address}&chainName=${currentWallet.chain_name}`" class="item">
+					<navigator hover-class="none" :url="`./transfer?chain=${currentWallet.chain}`" class="item">
 						<image src="../../static/image/zhuanzhang@2x.png" mode=""></image>
 						<view>转账</view>
 					</navigator>
@@ -71,21 +71,21 @@
 			</view>
 			<view class="property-title flex-between alcenter h80 mt80 plr40">
 				<view class="ft32">资产列表</view>
-				<navigator hover-class="none" :url="`./tokenCoin?type=${currentWallet.type}`">
+				<navigator hover-class="none" :url="`./tokenCoin?chain=${currentWallet.chain}`">
 					<image src="../../static/image/add@2x.png" mode=""></image>
 				</navigator>
 			</view>
 			<view class="property-item flex-between alcenter h80 mt40 mb40 plr40" v-for="(item, index) in currentWallet.token_list" :key="index" @click="goDetail(item)">
 				<view class="flex alcenter">
-					<image :src="item.icon" mode="" class="mr40"></image>
+					<image :src="`${config.imgUrl + item.logo}`" mode="" class="mr40"></image>
 					<view>
 						<view class="ft36">{{item.symbol}}</view>
-						<view class="c_9397AF">{{item.chain}}</view>
+						<view class="c_9397AF">{{currentWallet.chain}}</view>
 					</view>
 				</view>
 				<view>
 					<view class="ft36 text-right">{{item.balance }}</view>
-					<view class="c_9397AF text-right">${{item.usdt_price }}</view>
+					<view class="c_9397AF text-right">${{item.asset_usd }}</view>
 				</view> 
 			</view>
 		</view>
@@ -103,10 +103,10 @@
 
 <script>
 	import config from '@/config'
+	import { CHAIN_LIST } from '@/common/constants';
 	import walletList from '@/components/wallet-list/index.vue'
-	import { getAllWalletData } from '@/common/utils/storage.js';
-	import { getWalletList } from '@/common/utils/sqliteFun.js';
-	import { add_remove_token_list } from '@/common/utils';
+	import { hasWallet } from '@/common/utils/storage.js';
+	import { updateCurrentWallet, getDeviceInfo, getWalletList } from '@/common/utils';
 	export default {
 		components: {
 			walletList,
@@ -117,110 +117,104 @@
 				showMoney: true,
 				isConnected: true, //是否联网
 				hasWallet: false,
-				deviceId: 'c3c0268fa44293f2',
+				deviceId: '',
 				currentWallet: {},
 				propertyList: [],
-				currentMenuData: [],
-				walletData: []
 			};
 		},
-		onShow() {
-			this.walletData = getAllWalletData()	
-			this.hasWallet = getWalletList().length > 0
-			if(!this.hasWallet) return 	
-			let unSubmitWallet = []
-			for(let item of this.walletData) {
-				let unData = item.list.filter(item => {
-					return !item.hasSubmit
-				})
-				unSubmitWallet = unSubmitWallet.concat(unData)
-			}
-			unSubmitWallet = unSubmitWallet.map(item => {
-				return {
-					"chain": item.chain,
-					"symbol": item.symbol,
-					"network": "mainnet",
-					"device_id": item.device_id,
-					"wallet_uuid": item.uuid,
-					"wallet_name": item.wallet_name,
-					"address": item.address,
-					"contract_addr": item.contract_addr,
-					"":[]
-				}
-			})
-			if(unSubmitWallet.length > 0) {
-				this.$api.batch_submit_wallet(unSubmitWallet).then(() => {
-					// TODO: logic
-				})
-			}
-			if(uni.getStorageSync('currentWallet')) {
-				this.currentWallet = uni.getStorageSync('currentWallet')
-			}else{
-				this.currentWallet = this.walletData.find(item => {
-					return item.list && item.list.length !== 0
-				}).list[0]
-				uni.setStorageSync('currentWallet', this.currentWallet)				
-			}
-			uni.getNetworkType({
-				success: res => {
+		async onShow() {
+			// 获取设备信息
+			const deviceInfo = await getDeviceInfo()
+			this.deviceId = deviceInfo.device_id
+			await uni.getNetworkType({
+				success: async res => {
 					console.log('getNetworkType', res.networkType)
 					if (res.networkType == 'none') {
-						// TODO: logic
 						this.isConnected = false
+						getWalletList()
 					} else {
 						this.isConnected = true
+						await this.submitUnSubmitWallet()
 						if(this.hasWallet) {
-							this.loadWalletBalance()				
+							this.getWalletBalance()				
 						}
 					}
 				}
 			});
-			uni.onNetworkStatusChange(res => {
+			await uni.onNetworkStatusChange(async res => {
 				console.log('onNetworkStatusChange', res)
 				this.isConnected = res.isConnected
 				if(this.isConnected) {
+					await this.submitUnSubmitWallet()
 					if(this.hasWallet) {
-						this.loadWalletBalance()				
+						this.getWalletBalance()				
 					}
+				}else{
+					getWalletList()
 				}
 			});
+			this.hasWallet = hasWallet();
+			if(!this.hasWallet) return 	
+			if(uni.getStorageSync('currentWallet')) {
+				this.currentWallet = uni.getStorageSync('currentWallet')
+			}
 		},
 		methods: {
-			loadWalletBalance() {
-				// #ifdef APP-PLUS
-				plus.device.getInfo({
-					success: (e) =>{
-						console.log(111111, e)
-						this.deviceId = e.uuid
-						this.getWalletBalance()
-					},
-					fail: (e) =>{
-						console.log('getDeviceInfo failed: '+JSON.stringify(e));
+			async submitUnSubmitWallet() {
+				let unSubmitWallet = []
+				const allWalletData = uni.getStorageSync('walletData')
+				for(let chainId of Object.keys(allWalletData)) {
+					let unData = allWalletData[chainId].filter(item => {
+						return !item.has_submit
+					})
+					unSubmitWallet = unSubmitWallet.concat(unData)
+				}
+				unSubmitWallet = unSubmitWallet.map(item => {
+					const { chain_id, device_id, wallet_uuid, wallet_name, address } = item
+					const { chain, symbol } = CHAIN_LIST.filter(item=> item.id === chain_id)[0];
+					return {
+						chain,
+						symbol,
+						network: "mainnet",
+						device_id,
+						wallet_uuid,
+						wallet_name,
+						address,
+						contract_addr: "",
 					}
-				});
-				// #endif
-				// #ifdef H5
-				this.getWalletBalance()
-				// #endif
+				})
+				console.log('unSubmitWallet', unSubmitWallet)
+				if(unSubmitWallet.length > 0) {
+					this.$api.batch_submit_wallet(unSubmitWallet).then(() => {
+						const currentWallet = uni.getStorageSync('currentWallet')
+						if(!currentWallet.has_submit){
+							currentWallet.has_submit = 1
+							uni.setStorageSync('currentWallet', currentWallet)	
+						}
+						for(let chainId of Object.keys(allWalletData)) {
+							allWalletData[chainId] = allWalletData[chainId].map(item => {
+								if(!item.has_submit){
+									item.has_submit =1
+								}
+								return item
+							})
+						}	
+						uni.setStorageSync('walletData', allWalletData)	
+					})
+				}
 			},
 			getWalletBalance(){
+				const { wallet_uuid, chain="Arbitrum" } =  this.currentWallet
 				this.$api.getWalletBalance({
 					device_id: this.deviceId,
-					wallet_uuid: this.currentWallet.uuid,
-					chain: this.currentWallet.chain
+					wallet_uuid,
+					chain
 				}).then(res => {
-					let { token_list, total_asset_cny, total_asset_usd } = res.result
-					token_list = token_list.map(item => {
-						return {
-							...item,
-							icon: config.imgUrl + item.icon
-						}
-					})
+					let { token_list, asset_cny, asset_usd } = res.result
 					this.currentWallet.token_list = token_list;
-					this.currentWallet.total_asset_cny = total_asset_cny;
-					this.currentWallet.total_asset_usd = total_asset_usd;
-					add_remove_token_list(this.currentWallet)
-					
+					this.currentWallet.asset_cny = asset_cny;
+					this.currentWallet.asset_usd = asset_usd;
+					updateCurrentWallet(this.currentWallet)
 				})
 			},
 			goPath() {
@@ -228,7 +222,7 @@
 			},
 			goDetail(item) {
 				uni.navigateTo({
-					url: `./propertyDetail?walletData=${JSON.stringify(item)}`
+					url: `./propertyDetail?tokenData=${JSON.stringify(item)}`
 				})
 			},
 			handleOpen() {
@@ -239,8 +233,8 @@
 			},
 			handleSelectWallet(data) {
 				this.currentWallet = data
-				uni.setStorageSync('currentWallet', this.currentWallet)
-				this.loadWalletBalance()
+				uni.setStorageSync('currentWallet', data)
+				this.getWalletBalance()
 				this.handleClose()
 			},
 		}

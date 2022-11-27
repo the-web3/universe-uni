@@ -1,7 +1,7 @@
 <template>
 	<view class="transfer-container">
 		<view class="tabs flex-between mt40">
-			<navigator hover-class="none" :url="`./directTransfer?address=${address}&chainName=${chainName}`" class="tab-item flex-column flex-center">
+			<navigator hover-class="none" :url="`./directTransfer?chain=${chain}`" class="tab-item flex-column flex-center">
 				<image src="../../static/image/zhuanzhang-2@2x.png" mode=""></image>
 				<view class="ft28 mt20">直接转账</view>
 			</navigator>
@@ -43,19 +43,16 @@
 	export default {
 		data() {
 			return {
-				address: '',
-				contractaddress: '',
-				chainName: '',
 				recordList: [],
 				page: 1,
 				page_size: 10,
-				hasMore: false
+				hasMore: false,
+				currentWallet: {}
 			};
 		},
 		onLoad(options) {
-			this.address = options.address
-			this.contractaddress = options.contractaddress
-			this.chainName = options.chainName
+			this.chain = options.chain
+			this.currentWallet = uni.getStorageSync('currentWallet')
 			this.loadRecord()
 		},
 		onPullDownRefresh() {
@@ -76,13 +73,14 @@
 		},
 		methods: {
 			loadRecord() {
+				const { symbol, address }= this.currentWallet
 				return new Promise((resolve, reject) => {
 					this.$api.get_tx_by_address({
 						network: "mainnet",
 						chain: this.chain,
-						symbol: this.symbol,
-						address: this.address,
-						contract_address: this.contract_addr,
+						symbol,
+						address,
+						contract_addr: "",
 						page: this.page.toString(),
 						page_size: this.page_size.toString()
 					}).then(res => {
