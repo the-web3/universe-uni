@@ -43,7 +43,6 @@
 			return {
 				allTipWords: allTipWords,
 				tipWords: [],
-				// words: 'auto where claw holiday retire kingdom high pluck sad purpose brain pulse',
 				words: '',
 				walletName: '',
 				password: '',

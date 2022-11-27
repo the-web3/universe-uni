@@ -9,7 +9,14 @@ import api from '@/api';
 export const postWalletInfo = async (param) => {
     const { chain_name, words, wallet_name, password, contract_addr="", index = 0, unit = "6" } = param;
     const { chain, symbol, logo, active_logo, id } = CHAIN_LIST.filter(item=> item.name === chain_name)[0];
-    console.log('postWalletInfo', chain, symbol, logo, active_logo, id, contract_addr)
+    const walletList =  await DB.selectTableData('wallet', "chain_id", id)
+    for(let item of walletList){
+        const { mnemonic_code, password} = item
+        const curWords =  await base.DecodeMnemonic({encrytMnemonic: base.AesDecrypt(mnemonic_code, password), language:"english"})
+        if(curWords === words){
+            return showToast('当前链已存在此助记词钱包')
+        }
+    }
     const { device_id } = await getDeviceInfo()
     const word_vld = await base.ValidateMnemonic({mnemonic: words,language:"english"})
     if(!word_vld) {
@@ -87,31 +94,35 @@ export const postWalletInfo = async (param) => {
         walletInfo.asset_cny  = asset_cny
         walletInfo.asset_usd = asset_usd
         //insert asset table
-        insertOrReplaceTableData('asset', {
-            chain_id: id,//链ID
-            name: chain_name,//资产名称=>主币的名字
-            logo: logo,//币Logo
-            active_logo: active_logo,//币Logo
-            contract_addr,//合约地址
-            unit,//精度
-            is_del: 0,//状态 0正常 1删除
-        })
-        const newAssetList =  await DB.selectTableData('asset', "name", chain_name, "contract_addr", contract_addr)
-        console.log('asset success', newAssetList)
+        let [ assetInfo = {} ] =  await DB.selectTableData('asset', "chain_id", id, "contract_addr", contract_addr)
+        if( JSON.stringify(assetInfo) === '{}'){
+            insertOrReplaceTableData('asset', {
+                chain_id: id,//链ID
+                name: chain_name,//资产名称=>主币的名字
+                logo: logo,//币Logo
+                active_logo: active_logo,//币Logo
+                contract_addr,//合约地址
+                unit,//精度
+                is_del: 0,//状态 0正常 1删除
+            })
+            const newAssetList =  await DB.selectTableData('asset', "name", chain_name, "contract_addr", contract_addr)
+            assetInfo = newAssetList[newAssetList.length-1]
+        }
+        // console.log('asset success', assetInfo)
         //insert wallet table
         insertOrReplaceTableData('wallet', walletInfo)
         const [newWalletInfo = {}] =  await DB.selectTableData('wallet', "wallet_uuid", wallet_uuid)
-        console.log('wallet success', newWalletInfo)
+        // console.log('wallet success', newWalletInfo)
         //insert walletAsset table
         insertOrReplaceTableData('walletAsset', {
             wallet_id: newWalletInfo.id, //钱包ID
-            asset_id:  newAssetList[newAssetList.length-1].id,//资产ID
+            asset_id:  assetInfo.id,//资产ID
             balance:  balance,//余额
             asset_usd:  asset_usd,//USD 资产
             asset_cny:  asset_cny,//CNY 资产
             is_del:  0,//状态 0正常 1删除
         })
-        console.log('walletAsset success')
+        // console.log('walletAsset success')
         //insert account table
         await insertOrReplaceTableData('account', {
             wallet_id: newWalletInfo.id, //钱包ID
@@ -123,10 +134,10 @@ export const postWalletInfo = async (param) => {
         })
         //insert accountAsset table
         const [newAccountInfo = {}] =  await DB.selectTableData('account', "address", address)
-        console.log('account success', newAccountInfo)
+        // console.log('account success', newAccountInfo)
         insertOrReplaceTableData('accountAsset', {
             address_id:  newAccountInfo.id,//账户ID
-            asset_id:  newAssetList[newAssetList.length-1].id,//资产ID
+            asset_id:  assetInfo.id,//资产ID
             balance:  balance,//余额
             asset_usd:  asset_usd,//USD 资产
             asset_cny: asset_cny,//CNY 资产
@@ -186,31 +197,37 @@ export const postTokenInfo = async (param,callback) => {
         }).then(async (res) => {
             uni.hideLoading()
             const { balance, asset_cny, asset_usd } = res.result
-            //insert asset table
-            await insertOrReplaceTableData('asset', {
-                chain_id: id,//链ID
-                name: token_name,//资产名称=>代币的名字
-                logo: logo,//币Logo
-                active_logo: active_logo,//币Logo
-                contract_addr,//合约地址
-                unit,//精度
-                is_del: 0,//状态 0正常 1删除
-            })
-            const newAssetList =  await DB.selectTableData('asset', "name", token_name, 'contract_addr', contract_addr)
-            console.log('asset success', newAssetList)
+            let [ assetInfo = {} ] =  await DB.selectTableData('asset', "chain_id", id, "contract_addr", contract_addr)
+            if( JSON.stringify(assetInfo) === '{}'){
+                //insert asset table
+                await insertOrReplaceTableData('asset', {
+                    chain_id: id,//链ID
+                    name: token_name,//资产名称=>代币的名字
+                    logo: logo,//币Logo
+                    active_logo: active_logo,//币Logo
+                    contract_addr,//合约地址
+                    unit,//精度
+                    is_del: 0,//状态 0正常 1删除
+                })
+                const newAssetList =  await DB.selectTableData('asset', "name", token_name, 'contract_addr', contract_addr)
+                assetInfo = newAssetList[newAssetList.length-1]
+            }else{
+                await DB.updateTableData('asset', `is_del = '0'`, "chain_id", id, "contract_addr", contract_addr)
+            }
+            // console.log('asset success', assetInfo)
 			const [newWalletInfo = {}] =  await DB.selectTableData('wallet', "wallet_uuid", wallet_uuid)
-            console.log('wallet success', newWalletInfo)
+            // console.log('wallet success', newWalletInfo)
             //insert walletAsset table
             const walletAssetInsert = await insertOrReplaceTableData('walletAsset', {
                 wallet_id: newWalletInfo.id, //钱包ID
-                asset_id:  newAssetList[newAssetList.length-1].id,//资产ID
+                asset_id:  assetInfo.id,//资产ID
                 balance:  balance,//余额
                 asset_usd:  asset_usd,//USD 资产
                 asset_cny:  asset_cny,//CNY 资产
                 is_del:  0,//状态 0正常 1删除
             })
             // console.log(456, walletAssetInsert)
-            if(newAssetList[newAssetList.length-1] && walletAssetInsert && callback){
+            if( assetInfo && walletAssetInsert && callback){
                 callback()
             }
         }).catch(() => {
@@ -291,15 +308,10 @@ export const deleteWallet = async (currentWallet) =>{
     for(let item of newAccountAssetList){
         DB.updateTableData('accountAsset', `is_del = '1'`, "id", item.id)
     }
-    const newAssetList =  await DB.selectTableData('asset', "id", newAccountAssetList[0]?.asset_id)
-    for(let item of newAssetList){
-        DB.updateTableData('asset', `is_del = '1'`, "id", item.id)
-    }
-    console.log('newWalletInfo', newWalletInfo)
-    console.log('walletAssetList', walletAssetList)
-    console.log('accountList', newAccountList, newAccountList[0].id)
-    console.log('newAccountAssetList', newAccountAssetList)
-    console.log('newAssetList', newAssetList)
+    // console.log('newWalletInfo', newWalletInfo)
+    // console.log('walletAssetList', walletAssetList)
+    // console.log('accountList', newAccountList, newAccountList[0].id)
+    // console.log('newAccountAssetList', newAccountAssetList)
     const allWalletData = uni.getStorageSync('walletData') || {};
     const currentChainWalletList = allWalletData[chain_id] ||[];
     for(let i in currentChainWalletList){
@@ -329,8 +341,6 @@ export const deleteWallet = async (currentWallet) =>{
 export const getWalletList = async () =>{
     const newWalletList =  await DB.selectTableData('wallet')
     const newAccountList =  await DB.selectTableData('account')
-    // console.log('newWalletList', newWalletList)
-    // console.log('newAccountList', newAccountList)
     let newCurrentWallet = {}
     const allWalletData = (newWalletList||[]).map(item =>{
         const {id , ...restItem} = item;

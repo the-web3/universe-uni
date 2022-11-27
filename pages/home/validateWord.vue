@@ -2,11 +2,16 @@
 	<view class="validate-word-container">
 		<view class="ft28 pl40 mt20 mb50">请根据您抄写的助记词，按顺序选择填充</view>
 		<view class="fill-container flex flex-wrap">
-			<view class="fill-item ft28 c_4C6EF5 flex-center" v-for="(item, index) in fillWords" :key="index">{{item}}</view>
+			<view class="fill-item ft28 c_4C6EF5 flex-center" v-for="(item, index) in fillWords" :key="index" @tap="handleUnSelectWords(item, index)">
+				{{item}}
+				<uni-icons v-if="index === fillWordsBack.length-1 && item" type="minus" size="16" class="icon-del"/>
+			</view>
 		</view>
 		<view class="word-container flex flex-wrap">
-			<view class="word-item ft28 flex-center" :class="{'active': fillWords.includes(item)}" 
-			v-for="(item, index) in shuffleWords" :key="index" @tap="handleSelect(item, index)">{{item}}</view>
+			<view class="word-item ft28 flex-center" :class="{'active': fillWordsBack.includes(index)}" 
+			v-for="(item, index) in shuffleWords" :key="index" @tap="handleSelect(item, index)">
+				{{item}}
+			</view>
 		</view>
 		<button type="default" class="confirm-btn" @tap="handleConfirm">确认</button>
 	</view>
@@ -22,6 +27,7 @@
 				words: [],
 				shuffleWords: [],
 				fillWords: new Array(12).fill(''),
+				fillWordsBack: [],
 				address: '',
 				privateKey: '',
 				chain_name: ''
@@ -32,25 +38,31 @@
 			this.walletName = options.walletName
 			this.password = options.password
 			this.words = options.words.split(' ')
-			this.shuffleWords = options.words.split(' ')
-			this.shuffle(this.shuffleWords)
+			this.shuffleWords = this.shuffle(this.words)
 		},
 		methods: {
-			shuffle (array) {
+			shuffle (arr) {
+				const array = [...arr];
 				let len = array.length;
 				for (let i = len - 1; i > 0; i--) {
 					let j = Math.floor(Math.random() * (i + 1));
 					[array[i], array[j]] = [array[j], array[i]];
 				}
+				return array
 			},
-			handleSelect(item) {
-				if(this.fillWords.includes(item)) return
-				let index = this.fillWords.findIndex(item => {
+			handleUnSelectWords(item, index){
+				if(index === this.fillWordsBack.length-1){
+					this.fillWordsBack.pop();
+					this.fillWords.splice(index, 1, "")
+				}
+			},
+			handleSelect(item, index){
+				if(this.fillWordsBack.includes(index)) return
+				const fillIndex = this.fillWords.findIndex(item => {
 					return item.length == 0
 				})
-				if(index > -1) {
-					this.fillWords.splice(index, 1, item)	
-				}
+				this.fillWords.splice(fillIndex, 1, item)	
+				this.fillWordsBack.push(index)	
 			},
 			handleConfirm() {
 				let flag = this.fillWords.every(item => {
@@ -90,12 +102,18 @@
 			margin-bottom: 92rpx;
 			box-sizing: border-box;
 			.fill-item{
+				position: relative;
 				width: 210rpx;
 				height: 80rpx;
 				background: #FFFFFF;
 				border-radius: 30rpx;
 				margin-right: 16rpx;
 				margin-bottom: 16rpx;
+			}
+			.icon-del{
+				position: absolute;
+				top: 8rpx;
+				right: 8rpx;
 			}
 		}
 		.word-container{
