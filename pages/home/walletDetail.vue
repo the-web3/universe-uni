@@ -1,7 +1,7 @@
 <template>
 	<view class="wallet-detail-container plr40">
 		<view class="detail-container flex alcenter pl20 pr30 mt40">
-			<image v-if="currentWallet.token_list" :src="`${config.imgUrl + currentWallet.token_list[0].logo}`"  mode="" class="coin-img mr30"></image>
+			<image v-if="currentWallet.token_list" :src="`${config.imgUrl}${currentWallet.token_list[0] ? currentWallet.token_list[0].logo:''}`"  mode="" class="coin-img mr30"></image>
 			<view>
 				<view class="flex alcenter">
 					<view class="ft28">{{currentWallet.wallet_name}}</view>

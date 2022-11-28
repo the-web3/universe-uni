@@ -126,6 +126,7 @@
 			// 获取设备信息
 			const deviceInfo = await getDeviceInfo()
 			this.deviceId = deviceInfo.device_id
+			this.hasWallet = hasWallet();
 			await uni.getNetworkType({
 				success: async res => {
 					console.log('getNetworkType', res.networkType)
@@ -134,10 +135,7 @@
 						getWalletList()
 					} else {
 						this.isConnected = true
-						await this.submitUnSubmitWallet()
-						if(this.hasWallet) {
-							this.getWalletBalance()				
-						}
+						this.initWalletInNetwork()
 					}
 				}
 			});
@@ -146,20 +144,23 @@
 				this.isConnected = res.isConnected
 				if(this.isConnected) {
 					await this.submitUnSubmitWallet()
-					if(this.hasWallet) {
-						this.getWalletBalance()				
-					}
+					this.initWalletInNetwork()
 				}else{
 					getWalletList()
 				}
 			});
-			this.hasWallet = hasWallet();
-			if(!this.hasWallet) return 	
-			if(uni.getStorageSync('currentWallet')) {
-				this.currentWallet = uni.getStorageSync('currentWallet')
-			}
+			this.currentWallet = uni.getStorageSync('currentWallet')
 		},
 		methods: {
+			async initWalletInNetwork(){
+				await this.submitUnSubmitWallet()
+				this.hasWallet = hasWallet();
+				if(this.hasWallet) {
+					this.getWalletBalance()				
+				}else{
+					return
+				}
+			},
 			async submitUnSubmitWallet() {
 				let unSubmitWallet = []
 				const allWalletData = uni.getStorageSync('walletData')
@@ -207,6 +208,7 @@
 				}
 			},
 			getWalletBalance(){
+				this.currentWallet = uni.getStorageSync('currentWallet')
 				const { wallet_uuid, chain="Arbitrum" } =  this.currentWallet
 				this.$api.getWalletBalance({
 					device_id: this.deviceId,
