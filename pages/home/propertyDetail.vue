@@ -191,12 +191,12 @@
 			},
 			goTransfer() {
 				uni.navigateTo({
-					url: `./transfer?address=${this.tokenData.address}&contractaddress=${this.tokenData.contract_addr}`
+					url: `./transfer?address=${this.tokenData?.address_list[0]?.address}&contractaddress=${this.tokenData.contract_addr}`
 				})
 			},
 			goGather() {
 				uni.navigateTo({
-					url: `./gather?address=${this.tokenData.address}`
+					url: `./gather?address=${this.tokenData?.address_list[0]?.address}`
 				})
 			},
 			goDetail(item) {
